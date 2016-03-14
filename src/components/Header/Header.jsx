@@ -6,6 +6,10 @@ import {Link} from 'react-router';
 
 export default React.createClass({
 
+  propTypes: {
+    preferencesOpen: React.PropTypes.bool.isRequired,
+  },
+
   render() {
     return (
       <InlineCss stylesheet={styles} componentName="component">

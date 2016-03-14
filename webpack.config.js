@@ -6,7 +6,8 @@ var isProdBuild = process.argv.indexOf('-p') !== -1;
 var envPlugin = new webpack.DefinePlugin({
   __DEBUG__: JSON.stringify(!isProdBuild),
   __RELEASE__: JSON.stringify(isProdBuild),
-  'process.env.NODE_ENV': isProdBuild ? '"production"' : '"development"'
+  'process.env.NODE_ENV': isProdBuild ? '"production"' : '"development"',
+  __FIREBASE_URL__: '"https://fur-sale.firebaseio.com"'
 });
 
 module.exports = {

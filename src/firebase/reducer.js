@@ -1,9 +1,8 @@
-import actions from '../actions';
+import actions from './actionTypes';
 
 function getInitialState() {
   return {
     isLoggedIn: false,
-    data: '',
     connected: false,
     serverTimeOffset: 0
   }
@@ -18,8 +17,6 @@ export default (state = getInitialState(), action) => {
         return {...state, connected: action.data};
       } else if(action.path == '.info/serverTimeOffset') {
         return {...state, serverTimeOffset: action.data};
-      } else {
-        return {...state, data: action.data};
       }
       break;
   }

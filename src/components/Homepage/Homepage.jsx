@@ -11,9 +11,11 @@ const Homepage = React.createClass({
   render() {
     return (
       <InlineCss stylesheet={styles} componentName="container">
-        <h1>Fur Sale!</h1>
-        <Link to="/preferences/">Preferences</Link>
-        {this.props.children}
+      	<section>
+	        <h1>Fur Sale!</h1>
+	        <Link to="/preferences/">Preferences</Link>
+          <Link to="/firebase/">Firebase</Link>
+	       </section>
       </InlineCss>
     );
   }

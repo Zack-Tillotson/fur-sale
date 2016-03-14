@@ -1,6 +1,6 @@
 import Firebase from 'firebase';
 
-const firebaseUrlBase = 'https://zt-jumpstart.firebaseio.com';
+const firebaseUrlBase = __FIREBASE_URL__; // From webpack
 
 function getFirebaseUrl(path) {
   return [firebaseUrlBase, path]

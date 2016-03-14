@@ -6,6 +6,7 @@ import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import Page from '../components/Page';
 import Homepage from '../components/Homepage';
 import Preferences from '../components/Preferences';
+import FirebaseApi from '../components/FirebaseApi';
 
 import firebase from '../firebase';
 import actions from '../firebase/actions';
@@ -18,7 +19,6 @@ const Application = React.createClass({
 
   componentDidMount() {
     this.props.firebase.monitorConnection();
-    this.props.firebase.syncData('/');
   },
 
   render() {
@@ -26,6 +26,9 @@ const Application = React.createClass({
       <Router history={browserHistory}>
         <Route path="/" component={Page}>
           <IndexRoute component={Homepage} />
+          <Route path="firebase">
+            <IndexRoute component={FirebaseApi} />
+          </Route>
           <Route path="preferences">
             <IndexRoute component={Preferences} />
           </Route>

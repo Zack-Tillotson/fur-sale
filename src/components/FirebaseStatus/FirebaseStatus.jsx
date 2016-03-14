@@ -28,10 +28,6 @@ const FirebaseStatus = React.createClass({
               <td>Authentication Provider</td>
               <td>{this.props.authProvider}</td>
             </tr>
-            <tr>
-              <td>Data</td>
-              <td>{this.props.data}</td>
-            </tr>
           </tbody>
         </table>
       </InlineCss>
