@@ -21,7 +21,7 @@ const FirebaseApp = React.createClass({
   },
 
   startGameHandler() {
-
+    this.props.startGame();
   },
 
   makeBetHandler() {

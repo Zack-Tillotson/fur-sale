@@ -17,5 +17,9 @@ export default function(dispatch, props) {
       dispatch(apiActions.readyUp(status));
     },
 
+    startGame() {
+      dispatch(apiActions.startGame());
+    },
+
 	};
 }

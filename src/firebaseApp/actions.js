@@ -8,6 +8,10 @@ function apiFailed(event, data) {
 	return {type: types.apiFailed, event, data}
 }
 
+function dataReceived(data) {
+  return {type: types.dataReceived, data}
+}
+
 export default {
-	apiSuccessful, apiFailed
+	apiSuccessful, apiFailed, dataReceived
 }

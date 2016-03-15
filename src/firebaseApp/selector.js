@@ -1,1 +1,3 @@
-export default (state) => state
+export default (state) => {
+  return {game: state.firebaseApp};
+}

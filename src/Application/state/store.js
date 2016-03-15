@@ -10,7 +10,11 @@ const middleware = [
 if(__DEBUG__) {
   middleware.push(LoggerMiddleware({
     level: 'info',
-    predicate: (state, action) => true
+    predicate: (state, action) => true,
+    stateTransformer: state => {
+      const {firebaseApp, ...rest} = state;
+      return {...rest, firebaseApp: firebaseApp.toJS()}
+    }
   }));
 }
 

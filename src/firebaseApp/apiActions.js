@@ -1,5 +1,6 @@
 import actions from './actions';
 import firebaseSelector from '../firebase/selector';
+import selector from './selector';
 import utils from '../firebase/utils';
 import Firebase from 'firebase';
 
@@ -11,122 +12,200 @@ function success(dispatch, event, data) {
 	dispatch(actions.apiSuccessful(event, data));
 }
 
-function failure(dispatch, event, data) {
-	dispatch(actions.apiFailed(event, data));
+function failure(dispatch, event, message) {
+	dispatch(actions.apiFailed(event, message));
 }
 
 // Thunks
 
-export default {
+function beginSyncGameData() {
 
-  createGame() {
+  const event = 'gameData';
 
-    const event = 'createGame';
+  return (dispatch, getState) => {
 
-    return (dispatch, getState) => {
+    const {isLoggedIn} = firebaseSelector(getState());
 
-    	const {authInfo, isLoggedIn} = firebaseSelector(getState());
+    if(!isLoggedIn) {
+      failure(dispatch, event, 'not logged in');
+    } else {
 
-    	if(!isLoggedIn) {
-    		failure(dispatch, event, 'not logged in');
-    	} else {
+      const gameId = selector(getState()).game.get('gameId');
 
-    		const owner = authInfo.uid;
-    		const rngSeed = Math.random().toString(36);
-    		const gameMode = 'lobby';
-        const createdAt = Firebase.ServerValue.TIMESTAMP;
-    	
-    		utils.connect('games')
-          .push({owner, rngSeed, gameMode, createdAt})
-          .then(ref => success(dispatch, event, ref));
-    	}
-    }
-  },
-
-  joinGame(gameId) {
-
-    const event = 'joinGame';
-
-    return (dispatch, getState) => {
-
-      const {authInfo, isLoggedIn} = firebaseSelector(getState());
-
-      if(!isLoggedIn) {
-        failure(dispatch, event, 'not logged in');
+      if(!gameId) {
+        failure(dispatch, event, 'no game joined');
       } else {
 
-        const uid = authInfo.uid;
-        
-        const ref = utils.connect('games')
+        utils.connect('games')
           .child(gameId)
-          .child('players')
-          .child(uid);
-
-        // Check to see if they already have joined the game
-        ref.once('value', snapshot => {
-
-          // If so just update their activity time
-          if(snapshot.exists()) {
-
-            ref.child('activeAt').set(Firebase.ServerValue.TIMESTAMP, error => {
-              if(!error) {
-                success(dispatch, event);
-              } else {
-                failure(dispatch, event, error.code);
-              }
-            });
-
-          } else { // If not then add them
-
-            ref.set({status: 'notReady', joinedAt: Firebase.ServerValue.TIMESTAMP, activeAt: Firebase.ServerValue.TIMESTAMP}, error => {
-              if(!error) {
-                success(dispatch, event);
-              } else {
-                failure(dispatch, event, error.code);
-              }
-            });
-          }
-        });
+          .on('value', snapshot => {
+            dispatch(actions.dataReceived(snapshot.val()));
+          });
       }
     }
-  },
+  }
+}
 
-  readyUp(status) {
+function createGame() {
 
-    const event = 'readyUp';
+  const event = 'createGame';
 
-    return (dispatch, getState) => {
+  return (dispatch, getState) => {
 
-      const {authInfo, isLoggedIn} = firebaseSelector(getState());
+    const {authInfo, isLoggedIn} = firebaseSelector(getState());
+
+    if(!isLoggedIn) {
+      failure(dispatch, event, 'not logged in');
+    } else {
+
+      const owner = authInfo.uid;
+      const rngSeed = Math.random().toString(36);
+      const gameMode = 'lobby';
+      const createdAt = Firebase.ServerValue.TIMESTAMP;
+    
+      utils.connect('games')
+        .push({owner, rngSeed, gameMode, createdAt})
+        .then(ref => {
+          const id = ref.key();
+          success(dispatch, event, id);
+          dispatch(joinGame(id));
+        });
+    }
+  }
+}
+
+function joinGame(gameId) {
+
+  const event = 'joinGame';
+
+  return (dispatch, getState) => {
+
+    const {authInfo, isLoggedIn} = firebaseSelector(getState());
+
+    if(!isLoggedIn) {
+      failure(dispatch, event, 'not logged in');
+    } else {
+
+      const uid = authInfo.uid;
       
-      if(!isLoggedIn) {
-        failure(dispatch, event, 'not logged in');
-      } else {
+      const ref = utils.connect('games')
+        .child(gameId)
+        .child('sessions')
+        .child(uid);
 
-        const uid = authInfo.uid;
+      // Check to see if they already have joined the game
+      ref.once('value', snapshot => {
 
-        const gameId = getState().firebaseApp.gameId;
+        // If so just update their activity time
+        if(snapshot.exists()) {
 
-        if(!gameId) {
-          failure(dispatch, event, 'game not joined');
-        } else {
-
-          utils.connect('games')
-          .child(gameId)
-          .child('players')
-          .child(uid)
-          .child('status')
-          .set(status, error => {
+          ref.child('activeAt').set(Firebase.ServerValue.TIMESTAMP, error => {
             if(!error) {
-              success(dispatch, event);
+              success(dispatch, event, gameId);
+              dispatch(beginSyncGameData());
             } else {
-              failure(dispatch, event, error.code)
+              failure(dispatch, event, error.code);
             }
           });
 
+        } else { // If not then add them
+
+          ref.set({status: 'notReady', joinedAt: Firebase.ServerValue.TIMESTAMP, activeAt: Firebase.ServerValue.TIMESTAMP}, error => {
+            if(!error) {
+              success(dispatch, event, gameId);
+              dispatch(beginSyncGameData());
+            } else {
+              failure(dispatch, event, error.code);
+            }
+          });
         }
+      });
+    }
+  }
+}
+
+function readyUp(status) {
+
+  const event = 'readyUp';
+
+  return (dispatch, getState) => {
+
+    const {authInfo, isLoggedIn} = firebaseSelector(getState());
+    
+    if(!isLoggedIn) {
+      failure(dispatch, event, 'not logged in');
+    } else {
+
+      const uid = authInfo.uid;
+
+      const gameId = selector(getState()).game.get('gameId');
+
+      if(!gameId) {
+        failure(dispatch, event, 'no game joined');
+      } else {
+
+        utils.connect('games')
+        .child(gameId)
+        .child('sessions')
+        .child(uid)
+        .child('status')
+        .set(status, error => {
+          if(!error) {
+            success(dispatch, event);
+          } else {
+            failure(dispatch, event, error.code)
+          }
+        });
+
       }
     }
-  },
+  }
+}
 
+function startGame() {
+
+  const event = 'startGame';
+
+  return (dispatch, getState) => {
+
+    const {authInfo, isLoggedIn} = firebaseSelector(getState());
+    
+    if(!isLoggedIn) {
+      failure(dispatch, event, 'not logged in');
+    } else {
+
+      const uid = authInfo.uid;
+
+      const state = selector(getState()).game;
+      const gameId = state.get('gameId');
+      const status = state.getIn(['upstream', 'gameMode']);
+
+      if(!gameId) {
+        failure(dispatch, event, 'no game joined');
+      } else if(status !== 'lobby') {
+        failure(dispatch, event, 'can only start games in lobby mode');
+      } else {
+
+        utils.connect('games')
+        .child(gameId)
+        .child('gameMode')
+        .set('playing', error => {
+          if(!error) {
+            success(dispatch, event);
+          } else {
+            failure(dispatch, event, error.code)
+          }
+        });
+
+      }
+    }
+  }
+
+}
+
+export default {
+  createGame,
+  joinGame,
+  readyUp,
+  startGame,
 }
