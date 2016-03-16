@@ -65,6 +65,7 @@ function getInitialSellPhaseState(state, rng) {
       playerId: player.get('playerId'),
       money: player.get('money'),
       buyCards: player.get('buyCards').toJS(),
+      usedBuyCards: [],
       sellCards: [],
       currentOffer: 0,
     });
@@ -195,12 +196,12 @@ function applySellDecision(decision, state) {
 
   state = state.updateIn(['players'], players => players.map(player => {
     if(player.get('playerId') === playerId) {
-      player = player.set('currentOffer', card);
+      player = player.set('currentOffer', parseInt(card));
     }
     return player;
   }));
 
-  const allPlayersIn = !state.get('players').filter(player => player.get('currentOffer') === 0).size;
+  const allPlayersIn = !state.get('players').filter(player => player.get('currentOffer') == 0).size;
 
   if(allPlayersIn) {
 
@@ -209,18 +210,20 @@ function applySellDecision(decision, state) {
       const cardToGive = state.getIn(['table', 'visibleCards']).last();
       const highBid = state
         .get('players')
-        .sort((a, b) => a.currentOffer - b.currentOffer)
+        .sort((a, b) => a.get('currentOffer') - b.get('currentOffer'))
         .last()
         .get('currentOffer');
       state = state.updateIn(['table', 'visibleCards'], cards => cards.skipLast(1));
       state = state.updateIn(['players'], players => players.map(player => {
-        if(player.get('currentOffer') === highBid) {
+        if(player.get('currentOffer') == highBid) {
           player = player.merge({
             currentOffer: 0,
             sellCards: player.get('sellCards').push(cardToGive),
-            deckCards: player.get('deckCards').filter(card => card !== cardToGive),
+            buyCards: player.get('buyCards').filter(card => card != highBid),
+            usedBuyCards: player.get('usedBuyCards').push(highBid),
           });
         }
+        return player;
       }));
     }
 

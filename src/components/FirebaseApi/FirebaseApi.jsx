@@ -68,7 +68,10 @@ const FirebaseApp = React.createClass({
           <h3>Sell Phase</h3>
           <select ref="cardSelect">
             {(this.props.game.getIn(['engine', 'players', 0, 'buyCards']) || []).map(card => (
-              <option key={card} value={card}>${card}</option>
+              <option key={"0" + card} value={card}>${card}</option>
+            ))}
+            {(this.props.game.getIn(['engine', 'players', 1, 'buyCards']) || []).map(card => (
+              <option key={"1" + card} value={card}>${card}</option>
             ))}
           </select>
           <button onClick={this.selectCardHandler}>Select Card</button>
