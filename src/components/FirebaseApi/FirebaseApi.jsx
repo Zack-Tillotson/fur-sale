@@ -36,12 +36,6 @@ const FirebaseApp = React.createClass({
     this.props.sellCard(this.refs.cardSelect.value);
   },
 
-  componentDidMount() {
-    setTimeout(() => 
-      this.props.joinGame('-KCwVYYswvYgyQ4mRN4z')
-    , 1000);
-  },
-
   render() {
     return (
       <InlineCss stylesheet={styles} componentName="container">
