@@ -21,5 +21,17 @@ export default function(dispatch, props) {
       dispatch(apiActions.startGame());
     },
 
+    makeBet(amount) {
+      dispatch(apiActions.makeBet(amount));
+    },
+
+    passBet() {
+      dispatch(apiActions.passBet());
+    },
+
+    sellCard(card) {
+      dispatch(apiActions.sellCard(card));
+    },
+
 	};
 }

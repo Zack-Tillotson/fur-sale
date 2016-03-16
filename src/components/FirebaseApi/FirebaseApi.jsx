@@ -25,15 +25,21 @@ const FirebaseApp = React.createClass({
   },
 
   makeBetHandler() {
-
+    this.props.makeBet(parseInt(this.refs.betAmount.value));
   },
 
   foldBetHandler() {
-
+    this.props.passBet();
   },
 
   selectCardHandler() {
+    this.props.sellCard(this.refs.cardSelect.value);
+  },
 
+  componentDidMount() {
+    setTimeout(() => 
+      this.props.joinGame('-KCwVYYswvYgyQ4mRN4z')
+    , 1000);
   },
 
   render() {
@@ -61,7 +67,9 @@ const FirebaseApp = React.createClass({
         <section>
           <h3>Sell Phase</h3>
           <select ref="cardSelect">
-
+            {(this.props.game.getIn(['engine', 'players', 0, 'buyCards']) || []).map(card => (
+              <option key={card} value={card}>${card}</option>
+            ))}
           </select>
           <button onClick={this.selectCardHandler}>Select Card</button>
         </section>

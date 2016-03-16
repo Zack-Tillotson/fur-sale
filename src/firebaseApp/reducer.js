@@ -49,12 +49,12 @@ function syncronizeGameState(state, newState) {
   // Starting the game!
   if(state.getIn(['upstream', 'gameMode']) !== 'playing' && newState.getIn(['upstream', 'gameMode']) === 'playing') {
     const sessions = newState.getIn(['upstream', 'sessions']);
-    gameState = Immutable.fromJS(engine.getInitialState(seed, sessions));
+    gameState = engine.getInitialBuyPhaseState(seed, sessions);
   }
 
   // Playing turns! (Only apply decisions that are new)
-  newState.getIn(['upstream', 'decisions']).slice(state.getIn(['upstream', 'decisions']).size).forEach(decision => {
-    gameState = Immutable.fromJS(engine.applyDecision(seed, decision, gameState));
+  newState.getIn(['upstream', 'decisions']).skip(state.getIn(['upstream', 'decisions']).size).forEach(decision => {
+    gameState = engine.applyDecision(seed, decision, gameState);
   });
   
   return gameState;
@@ -81,6 +81,9 @@ export default function(state = defaultState, action) {
 
       // Put the data coming directly from Firebase into the state
       let newState = state.mergeIn(['upstream'], Immutable.fromJS(action.data));
+      newState = newState.updateIn(['upstream', 'decisions'], Immutable.List(), decisions => {
+        return decisions.sort((a, b) => a.get('timestamp') - b.get('timestamp'))
+      });
 
       // Update the calculated data
       newState = newState.mergeIn(['engine'], Immutable.fromJS(syncronizeGameState(state, newState)));

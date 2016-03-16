@@ -203,9 +203,141 @@ function startGame() {
 
 }
 
+function makeBet(amount) {
+
+  const event = 'makeBet';
+
+  return (dispatch, getState) => {
+
+    const {authInfo, isLoggedIn} = firebaseSelector(getState());
+    
+    if(!isLoggedIn) {
+      failure(dispatch, event, 'not logged in');
+    } else {
+
+      const uid = authInfo.uid;
+
+      const state = selector(getState()).game;
+      const gameId = state.get('gameId');
+
+      if(!gameId) {
+        failure(dispatch, event, 'no game joined');
+      } else {
+
+        const decision = {
+          timestamp: Firebase.ServerValue.TIMESTAMP,
+          choice: 'raiseTo',
+          amount
+        }
+
+        utils.connect('games')
+        .child(gameId)
+        .child('decisions')
+        .push(decision, error => {
+          if(!error) {
+            success(dispatch, event);
+          } else {
+            failure(dispatch, event, error.code)
+          }
+        });
+
+      }
+    }
+  }
+}
+
+function passBet() {
+
+  const event = 'passBet';
+
+  return (dispatch, getState) => {
+
+    const {authInfo, isLoggedIn} = firebaseSelector(getState());
+    
+    if(!isLoggedIn) {
+      failure(dispatch, event, 'not logged in');
+    } else {
+
+      const uid = authInfo.uid;
+
+      const state = selector(getState()).game;
+      const gameId = state.get('gameId');
+
+      if(!gameId) {
+        failure(dispatch, event, 'no game joined');
+      } else {
+
+        const decision = {
+          timestamp: Firebase.ServerValue.TIMESTAMP,
+          choice: 'pass'
+        }
+
+        utils.connect('games')
+        .child(gameId)
+        .child('decisions')
+        .push(decision, error => {
+          if(!error) {
+            success(dispatch, event);
+          } else {
+            failure(dispatch, event, error.code)
+          }
+        });
+
+      }
+    }
+  }
+}
+
+function sellCard(card) {
+
+  const event = 'selectCard';
+
+  return (dispatch, getState) => {
+
+    const {authInfo, isLoggedIn} = firebaseSelector(getState());
+    
+    if(!isLoggedIn) {
+      failure(dispatch, event, 'not logged in');
+    } else {
+
+      const uid = authInfo.uid;
+
+      const state = selector(getState()).game;
+      const gameId = state.get('gameId');
+
+      if(!gameId) {
+        failure(dispatch, event, 'no game joined');
+      } else {
+
+        const decision = {
+          timestamp: Firebase.ServerValue.TIMESTAMP,
+          playerId: uid,
+          card,
+        }
+
+        utils.connect('games')
+        .child(gameId)
+        .child('decisions')
+        .push(decision, error => {
+          if(!error) {
+            success(dispatch, event);
+          } else {
+            failure(dispatch, event, error.code)
+          }
+        });
+
+      }
+    }
+  }
+
+}
+
 export default {
   createGame,
   joinGame,
   readyUp,
   startGame,
+  makeBet,
+  passBet,
+  sellCard,
 }

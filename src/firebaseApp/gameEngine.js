@@ -1,6 +1,7 @@
 // Given a random seed and a list of decions made by the players
 // return the current state of the game.
 
+import Immutable from 'immutable';
 import util from './util';
 
 const INITIAL_DISCARD_SIZE = 6;
@@ -14,23 +15,25 @@ const INITIAL_PLAYER_MONEY = 14;
 //     goneCardCount: 0, // How many cards from the deck have been secretely discarded
 //     visibleCards: [], // The visible cards on the table
 //   },
-//   players: [], // Maps to the sessions, {playerId, money, cards}
-//   currentPlayer: '',
+//   players: [], // Maps to the sessions, {playerId, money, buyCards, sellCards, currentBid, currentOffer}
+//   currentPlayer: 0,
 //   rngUse: 0, // The number of times the RNG has been used since seeding
 // }
 
-function getInitialState(seed, sessions) {
+function getInitialBuyPhaseState(seed, sessions) {
 
   const rng = util.getRng(seed);
 
-  const phase = 'buy';
   const players = sessions.map((session, playerId) => {
-    return session.merge({
+    return Immutable.fromJS({
       playerId,
-      money: INITIAL_PLAYER_MONEY
+      money: INITIAL_PLAYER_MONEY,
+      currentBid: 0,
+      hasPassed: false,
+      buyCards: [],
      });
-  });
-  const currentPlayer = players.first().get('playerId');
+  }).toList().toJS();
+  util.shuffle(rng, players);
 
   const cards = [];
   for(let i = 1 ; i <= 30 ; i++) {
@@ -38,22 +41,230 @@ function getInitialState(seed, sessions) {
   }
   util.shuffle(rng, cards);
 
-  const visibleCards = cards.slice(0, players.size);
-  const deckCards = cards.slice(players.size);
+  const phase = 'buy';
+  const currentPlayer = 0;
+  const visibleCards = cards.slice(0, players.length).sort();
+  const deckCards = cards.slice(players.length);
   const goneCardCount = INITIAL_DISCARD_SIZE;
-
-  const table = {deckCards, visibleCards, goneCardCount};
-
   const rngUse = rng.getUseCount();
 
-  return {phase, table, players, currentPlayer, rngUse};
+  return Immutable.fromJS({
+    phase, 
+    table: {deckCards, visibleCards, goneCardCount}, 
+    players, 
+    currentPlayer,
+    rngUse,
+  });
   
+}
+
+function getInitialSellPhaseState(state, rng) {
+
+  const players = state.get('players').map(player => {
+    return Immutable.fromJS({
+      playerId: player.get('playerId'),
+      money: player.get('money'),
+      buyCards: player.get('buyCards').toJS(),
+      sellCards: [],
+      currentOffer: 0,
+    });
+  });
+
+  const cardsAry = [];
+  for(let i = 0 ; i <= 15 ; i++) {
+    if(i == 1) {
+      i++;
+    }
+    cardsAry.push(i);
+    cardsAry.push(i);
+  }
+  util.shuffle(rng, cardsAry);
+  const cards = Immutable.fromJS(cardsAry);
+
+  const phase = 'sell';
+  const visibleCards = cards.take(players.size).sort();
+  const deckCards = cards.skip(players.size);
+  const goneCardCount = INITIAL_DISCARD_SIZE;
+
+  return state.merge({
+    phase,
+    table: Immutable.Map({deckCards, visibleCards, goneCardCount}),
+    players, 
+  });
+
+}
+
+function findNextPlayers(state) {
+
+  const currentPlayer = state.get('currentPlayer');
+  const activeBidders = [];
+
+  let nextPlayer = currentPlayer + 1;
+  for(let i = 0 ; i < state.get('players').size ; i++) {
+    nextPlayer = (nextPlayer + 1) % state.get('players').size;
+    
+    if(!state.getIn(['players', nextPlayer, 'hasPassed'])) {
+      activeBidders.push(nextPlayer);
+    }
+  }
+
+  return activeBidders;
+
+}
+
+// 1. Set player bet to bet amount
+// 2. Set current player to the next non passed player
+function applyBuyDecisionToRaise(decision, state) {
+
+  const bid = decision.get('amount');
+  const currentPlayer = state.get('currentPlayer');
+
+  state = state.setIn(['players', currentPlayer, 'currentBid'], bid);
+
+  let nextPlayer = findNextPlayers(state)[0];
+  state = state.set('currentPlayer', nextPlayer);
+
+  return state;
+
+}
+
+// 1. Show the current player as having passed
+// 2. Remove their bid loss (half or all)
+// 3. Move the lowest visible card to the player card list
+function cashOutBid(state, playerIndex, bidLost) {
+  const cardGained = state.getIn(['table', 'visibleCards', 0]);
+
+  state = state.setIn(['players', playerIndex, 'hasPassed'], true);
+  state = state.updateIn(['players', playerIndex, 'money'], money => money - bidLost);
+  state = state.updateIn(['players', playerIndex, 'buyCards'], Immutable.List(), cards => 
+    cards.push(cardGained)
+  );
+  state = state.updateIn(['table', 'visibleCards'], Immutable.List(), cards => cards.shift());
+
+  return state;
+}
+
+// 1. Cash out the current player
+// 2. If there is only one player left reset the round
+// 3. Resetting is: if cards left in buy round then start over otherwise
+//    initialize selling phase
+function applyBuyDecisionToPass(rng, decision, state) {
+
+  const currentPlayer = state.get('currentPlayer');
+  const currentBidLost = Math.ceil(state.getIn(['players', currentPlayer, 'currentBid']) / 2);
+  state = cashOutBid(state, currentPlayer, currentBidLost);
+
+  const activeBidders = findNextPlayers(state);
+  
+  if(activeBidders.size > 1) {
+    state = state.set('currentPlayer', activeBidders[0]);
+  } else {
+
+    const winningPlayer = activeBidders[0];
+    const winningBid = state.getIn(['players', winningPlayer, 'currentBid']);
+    state = cashOutBid(state, winningPlayer, winningBid);
+
+    const cardsInDeck = state.getIn(['table', 'deckCards']).size - state.getIn(['table', 'goneCardCount']);
+    const playerCount = state.get('players').size;
+
+    if(cardsInDeck > 0) { // Still have cards to buy?
+
+      state = state.updateIn(['table'], table => {
+        const visibleCards = table.get('deckCards').take(playerCount).sort();
+        const deckCards = table.get('deckCards').skip(playerCount);
+        return table.merge({visibleCards, deckCards});
+      });
+      state = state.updateIn(['players'], Immutable.List(), players => 
+        players.map(player => player.set('hasPassed', false))
+      );
+
+    } else { // Buy phase over - selling time!
+      state = getInitialSellPhaseState(state, rng);
+    }
+  }
+
+  return state;
+
+}
+
+
+function applySellDecision(decision, state) {
+
+  const playerId = decision.get('playerId');
+  const card = decision.get('card');
+
+  state = state.updateIn(['players'], players => players.map(player => {
+    if(player.get('playerId') === playerId) {
+      player = player.set('currentOffer', card);
+    }
+    return player;
+  }));
+
+  const allPlayersIn = !state.get('players').filter(player => player.get('currentOffer') === 0).size;
+
+  if(allPlayersIn) {
+
+    // Move visible cards to players according to their offered card
+    while(state.hasIn(['table', 'visibleCards', 0])) {
+      const cardToGive = state.getIn(['table', 'visibleCards']).last();
+      const highBid = state
+        .get('players')
+        .sort((a, b) => a.currentOffer - b.currentOffer)
+        .last()
+        .get('currentOffer');
+      state = state.updateIn(['table', 'visibleCards'], cards => cards.skipLast(1));
+      state = state.updateIn(['players'], players => players.map(player => {
+        if(player.get('currentOffer') === highBid) {
+          player = player.merge({
+            currentOffer: 0,
+            sellCards: player.get('sellCards').push(cardToGive),
+            deckCards: player.get('deckCards').filter(card => card !== cardToGive),
+          });
+        }
+      }));
+    }
+
+    const cardsInDeck = state.getIn(['table', 'deckCards']).size - state.getIn(['table', 'goneCardCount']);
+    const playerCount = state.get('players').size;
+
+    if(cardsInDeck > 0) { // Still have cards to sell?
+      state = state.updateIn(['table'], table => {
+        const visibleCards = table.get('deckCards').take(playerCount).sort();
+        const deckCards = table.get('deckCards').skip(playerCount);
+        return table.merge({visibleCards, deckCards});
+      });
+    } else {
+      state = state.set('phase', 'postgame');
+    }
+
+  }
+
+  return state;
 }
 
 function applyDecision(seed, decision, state) {
 
-  return state.toJS();
+  const rng = util.getRng(seed, state.get('rngUse'));
+
+  switch(state.get('phase')) {
+    case 'buy':
+      if(decision.get('choice') === 'raiseTo') {
+        state = applyBuyDecisionToRaise(decision, state);
+      } else if(decision.get('choice') === 'pass') {
+        state = applyBuyDecisionToPass(rng, decision, state);
+      } 
+      
+      break;
+
+    case 'sell':
+      state = applySellDecision(decision, state);
+      break;
+  }
+
+  state = state.set('rngUse', rng.getUseCount());
+
+  return state;
 
 }
 
-export default {getInitialState, applyDecision};
+export default {getInitialBuyPhaseState, applyDecision};

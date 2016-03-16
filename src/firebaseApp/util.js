@@ -16,8 +16,12 @@ function getRng(seed, discard = 0) {
   
 }
 
+function randomInt(rng, min, max) {
+  return Random.integer(min, max)(rng);
+}
+
 function shuffle(rng, ary) {
   Random.shuffle(rng, ary);
 }
 
-export default { getRng, shuffle }
+export default { getRng, randomInt, shuffle }
