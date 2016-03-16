@@ -100,7 +100,7 @@ function findNextPlayers(state) {
   const currentPlayer = state.get('currentPlayer');
   const activeBidders = [];
 
-  let nextPlayer = currentPlayer + 1;
+  let nextPlayer = currentPlayer;
   for(let i = 0 ; i < state.get('players').size ; i++) {
     nextPlayer = (nextPlayer + 1) % state.get('players').size;
     
@@ -156,11 +156,10 @@ function applyBuyDecisionToPass(rng, decision, state) {
   state = cashOutBid(state, currentPlayer, currentBidLost);
 
   const activeBidders = findNextPlayers(state);
+  state = state.set('currentPlayer', activeBidders[0]);
   
-  if(activeBidders.size > 1) {
-    state = state.set('currentPlayer', activeBidders[0]);
-  } else {
-
+  if(activeBidders.length === 1) { // Round over!
+    
     const winningPlayer = activeBidders[0];
     const winningBid = state.getIn(['players', winningPlayer, 'currentBid']);
     state = cashOutBid(state, winningPlayer, winningBid);
@@ -176,7 +175,10 @@ function applyBuyDecisionToPass(rng, decision, state) {
         return table.merge({visibleCards, deckCards});
       });
       state = state.updateIn(['players'], Immutable.List(), players => 
-        players.map(player => player.set('hasPassed', false))
+        players.map(player => player.merge({
+          hasPassed: false,
+          currentBid: 0
+        }))
       );
 
     } else { // Buy phase over - selling time!
