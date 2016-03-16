@@ -43,7 +43,7 @@ export default (state) => {
     //TODO empty cards
 
     return player.merge({
-      isSelf, isActive, prevAction, ownCards, money, maxBid
+      isSelf, isActive, prevAction, ownCards, money, minBid, maxBid
     });
 
   });

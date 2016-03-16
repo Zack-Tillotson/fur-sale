@@ -6,6 +6,7 @@ import { Router, Route, IndexRoute, browserHistory } from 'react-router';
 import Page from '../components/Page';
 import Homepage from '../components/Homepage';
 import Preferences from '../components/Preferences';
+import GameView from '../components/game/GameView';
 import FirebaseApi from '../components/FirebaseApi';
 
 import firebase from '../firebase';
@@ -26,6 +27,7 @@ const Application = React.createClass({
       <Router history={browserHistory}>
         <Route path="/" component={Page}>
           <IndexRoute component={Homepage} />
+          <Route path="games/:gameId/" component={GameView} />
           <Route path="firebase">
             <IndexRoute component={FirebaseApi} />
           </Route>
