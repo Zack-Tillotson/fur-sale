@@ -10,6 +10,8 @@ import styles from './styles';
 import PhaseTitle from '../PhaseTitle';
 import CardTable from '../CardTable';
 import PlayerList from '../PlayerList';
+import PlayerSessions from '../PlayerSessions';
+import PregameActions from '../PregameActions';
 
 const GameView = React.createClass({
 
@@ -46,14 +48,37 @@ const GameView = React.createClass({
         <PhaseTitle 
           phase={this.props.furSale.phase} />
 
-        <CardTable 
-          visibleCardsGone={this.props.furSale.visibleCardsGone}
-          visibleCards={this.props.furSale.visibleCards} />
+        {this.props.furSale.phase === 'pregame' && (
 
-        <PlayerList
-          players={this.props.furSale.players} 
-          passBet={this.props.passBet}
-          makeBet={this.props.makeBet} />
+          <div className="pregame">
+
+            <PregameActions 
+              isOwner={this.props.furSale.isGameOwner}
+              toggleReady={this.props.toggleReady} 
+              startGame={this.props.startGame} />
+
+          </div>
+
+        )}
+
+        {this.props.furSale.phase !== 'pregame' && (
+
+          <div className="inGame">
+
+            <CardTable 
+              visibleCardsGone={this.props.furSale.visibleCardsGone}
+              visibleCards={this.props.furSale.visibleCards} />
+
+            <PlayerList
+              players={this.props.furSale.players} 
+              passBet={this.props.passBet}
+              makeBet={this.props.makeBet} />
+
+          </div>
+
+        )}
+
+        <PlayerSessions sessions={this.props.furSale.sessions} />
 
       </InlineCss>
     );

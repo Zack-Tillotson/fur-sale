@@ -15,7 +15,7 @@ export default (state) => {
   const visibleCardsGone = engine.get('players').size - visibleCards.size;
   const deckCardCount = engine.getIn(['table', 'deckCards']).size - engine.getIn(['table', 'goneCardCount']);
   const minBid = phase == 'buy'
-    ? engine.get('players').sort((a, b) => a.get('currentBid') - b.get('currentBid')).first().get('currentBid') + 1
+    ? engine.get('players').sort((a, b) => b.get('currentBid') - a.get('currentBid')).first().get('currentBid') + 1
     : 0;
 
   // Players
@@ -48,6 +48,12 @@ export default (state) => {
 
   });
 
-  return {game, phase, visibleCards, visibleCardsGone, deckCardCount, minBid, players};
+  // Sessions
+  const sessions = game.get('sessions');
+
+  // Meta information
+  const isGameOwner = isLoggedIn && game.get('owner') === authInfo.uid;
+
+  return {game, phase, visibleCards, visibleCardsGone, deckCardCount, minBid, players, sessions, isGameOwner};
   
 }

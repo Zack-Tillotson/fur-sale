@@ -1,7 +1,10 @@
-import actionTypes from './actionTypes';
-import util from './util';
 import Immutable from 'immutable';
-import engine from './gameEngine';
+
+import actionTypes from './actionTypes';
+
+import gameReducer from './reducers/game';
+import upstreamReducer from './reducers/upstream';
+import sessionReducer from './reducers/sessions';
 
 const defaultState = Immutable.fromJS({
 
@@ -31,35 +34,9 @@ const defaultState = Immutable.fromJS({
     currentPlayer: ''
   },
 
+  sessions: [],
+
 });
-
-// If the game is first starting initialize the game state. If the game
-// has decisions made also run through their result.
-function syncronizeGameState(state, newState) {
-
-  let gameState = newState.get('engine');
-
-  // No game yet :]
-  if(newState.getIn(['upstream', 'gameMode']) !== 'playing') {
-    return gameState;
-  }
-
-  const seed = newState.getIn(['upstream', 'rngSeed']);
-
-  // Starting the game!
-  if(state.getIn(['upstream', 'gameMode']) !== 'playing' && newState.getIn(['upstream', 'gameMode']) === 'playing') {
-    const sessions = newState.getIn(['upstream', 'sessions']);
-    gameState = engine.getInitialBuyPhaseState(seed, sessions);
-  }
-
-  // Playing turns! (Only apply decisions that are new)
-  newState.getIn(['upstream', 'decisions']).skip(state.getIn(['upstream', 'decisions']).size).forEach(decision => {
-    gameState = engine.applyDecision(seed, decision, gameState);
-  });
-  
-  return gameState;
-
-}
 
 export default function(state = defaultState, action) {
 
@@ -80,13 +57,13 @@ export default function(state = defaultState, action) {
     case actionTypes.dataReceived:
 
       // Put the data coming directly from Firebase into the state
-      let newState = state.mergeIn(['upstream'], Immutable.fromJS(action.data));
-      newState = newState.updateIn(['upstream', 'decisions'], Immutable.List(), decisions => {
-        return decisions.sort((a, b) => a.get('timestamp') - b.get('timestamp'))
-      });
+      let newState = upstreamReducer(state, action.data);
 
       // Update the calculated data
-      newState = newState.mergeIn(['engine'], Immutable.fromJS(syncronizeGameState(state, newState)));
+      newState = newState.mergeIn(['engine'], Immutable.fromJS(gameReducer(state, newState)));
+
+      // User session info!
+      newState = newState.set('sessions', Immutable.fromJS(sessionReducer(action.data.sessions)));
 
       return newState;
   

@@ -17,7 +17,7 @@ const FirebaseApp = React.createClass({
   },
 
   readyUpHandler() {
-    this.props.readyUp('ready');
+    this.props.toggleReady();
   },
 
   startGameHandler() {

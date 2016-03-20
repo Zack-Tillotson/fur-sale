@@ -41,6 +41,7 @@ function beginSyncGameData() {
           .on('value', snapshot => {
             dispatch(actions.dataReceived(snapshot.val()));
           });
+
       }
     }
   }
@@ -93,13 +94,20 @@ function joinGame(gameId) {
         .child('sessions')
         .child(uid);
 
+      ref.child('connectionStatus')
+        .onDisconnect()
+        .set('offline');
+
       // Check to see if they already have joined the game
       ref.once('value', snapshot => {
 
         // If so just update their activity time
         if(snapshot.exists()) {
 
-          ref.child('activeAt').set(Firebase.ServerValue.TIMESTAMP, error => {
+          ref.update({
+            activeAt: Firebase.ServerValue.TIMESTAMP,
+            connectionStatus: 'online',
+          }, error => {
             if(!error) {
               success(dispatch, event, gameId);
               dispatch(beginSyncGameData());
@@ -110,7 +118,12 @@ function joinGame(gameId) {
 
         } else { // If not then add them
 
-          ref.set({status: 'notReady', joinedAt: Firebase.ServerValue.TIMESTAMP, activeAt: Firebase.ServerValue.TIMESTAMP}, error => {
+          ref.set({
+            status: 'notReady', 
+            connectionStatus: 'online',
+            joinedAt: Firebase.ServerValue.TIMESTAMP, 
+            activeAt: Firebase.ServerValue.TIMESTAMP
+          }, error => {
             if(!error) {
               success(dispatch, event, gameId);
               dispatch(beginSyncGameData());
@@ -124,9 +137,9 @@ function joinGame(gameId) {
   }
 }
 
-function readyUp(status) {
+function toggleReady() {
 
-  const event = 'readyUp';
+  const event = 'toggleReady';
 
   return (dispatch, getState) => {
 
@@ -144,14 +157,23 @@ function readyUp(status) {
         failure(dispatch, event, 'no game joined');
       } else {
 
+        let status = 'unknown';
+
         utils.connect('games')
         .child(gameId)
         .child('sessions')
         .child(uid)
         .child('status')
-        .set(status, error => {
+        .transaction(statusData => {
+          if(statusData === 'ready') {
+            status = 'notReady';
+          } else {
+            status = 'ready';
+          }
+          return status;
+        }, error => {
           if(!error) {
-            success(dispatch, event);
+            success(dispatch, event, status);
           } else {
             failure(dispatch, event, error.code)
           }
@@ -335,7 +357,7 @@ function sellCard(card) {
 export default {
   createGame,
   joinGame,
-  readyUp,
+  toggleReady,
   startGame,
   makeBet,
   passBet,

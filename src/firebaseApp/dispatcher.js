@@ -13,8 +13,8 @@ export default function(dispatch, props) {
       dispatch(apiActions.joinGame(gameId));
     },
 
-    readyUp(status) {
-      dispatch(apiActions.readyUp(status));
+    toggleReady() {
+      dispatch(apiActions.toggleReady());
     },
 
     startGame() {

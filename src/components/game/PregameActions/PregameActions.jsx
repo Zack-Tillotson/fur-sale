@@ -5,24 +5,16 @@ import styles from './styles.raw.less';
 export default React.createClass({
 
   propTypes: {
-    phase: React.PropTypes.string.isRequired,
-  },
-
-  getPhase() {
-    switch(this.props.phase) {
-      case 'pregame':
-        return 'Pregame';
-      case 'buy':
-        return 'Buy';
-      case 'sell':
-        return 'Sell';
-    }
+    isOwner: React.PropTypes.bool.isRequired,
+    toggleReady: React.PropTypes.func.isRequired,
+    startGame: React.PropTypes.func.isRequired,
   },
 
   render() {
     return (
       <InlineCss stylesheet={styles} componentName="component">
-        {this.getPhase()} Phase
+        <button onClick={this.props.toggleReady}>Ready</button>
+        <button onClick={this.props.startGame}>Start Game</button>
       </InlineCss>
     );
   }
