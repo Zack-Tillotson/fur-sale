@@ -47,7 +47,7 @@ function beginSyncGameData() {
   }
 }
 
-function createGame() {
+function createGame(onSuccess) {
 
   const event = 'createGame';
 
@@ -70,6 +70,7 @@ function createGame() {
           const id = ref.key();
           success(dispatch, event, id);
           dispatch(joinGame(id));
+          !!onSuccess && onSuccess(id);
         });
     }
   }

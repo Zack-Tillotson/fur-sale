@@ -5,8 +5,8 @@ export default function(dispatch, props) {
 
 	return {
 
-		createGame() {
-      dispatch(apiActions.createGame());
+		createGame(onSuccess) {
+      dispatch(apiActions.createGame(onSuccess));
     },
 
     joinGame(gameId) {
