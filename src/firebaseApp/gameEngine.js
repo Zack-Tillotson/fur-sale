@@ -25,7 +25,7 @@ function getInitialBuyPhaseState(seed, sessions) {
   const rng = util.getRng(seed);
 
   const players = sessions.map((session, playerId) => {
-    return Immutable.fromJS({
+    return session.merge({
       playerId,
       money: INITIAL_PLAYER_MONEY,
       currentBid: 0,

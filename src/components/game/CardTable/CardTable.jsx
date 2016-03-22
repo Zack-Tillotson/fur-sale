@@ -1,6 +1,7 @@
 import React from 'react';
 import InlineCss from "react-inline-css";
 import styles from './styles.raw.less';
+import Card from '../Card';
 
 export default React.createClass({
 
@@ -21,7 +22,7 @@ export default React.createClass({
     return (
       <InlineCss stylesheet={styles} componentName="component">
         {this.props.visibleCards.map(card => (
-            <div className="card visible" key={card}>{card}</div>
+            <Card key={card} value={card} size="large" />
           )
         )}
         {this.getGoneCardsArray().map((card, index) => (

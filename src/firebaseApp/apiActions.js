@@ -43,7 +43,6 @@ function beginSyncGameData(gameId) {
             dispatch(touchSession());
 
           });
-
       }
     }
   }
