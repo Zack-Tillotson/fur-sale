@@ -11,18 +11,18 @@ export default React.createClass({
   getPhase() {
     switch(this.props.phase) {
       case 'pregame':
-        return 'Pregame';
+        return 'Game preparing to start...';
       case 'buy':
-        return 'Buy';
+        return 'Buy Phase';
       case 'sell':
-        return 'Sell';
+        return 'Sell Phase';
     }
   },
 
   render() {
     return (
       <InlineCss stylesheet={styles} componentName="component">
-        {this.getPhase()} Phase
+        {this.getPhase()}
       </InlineCss>
     );
   }

@@ -1,5 +1,59 @@
 component {
 
+  max-width: 600px;
+  margin: 5px auto;
+
+  table.sessionTable {
+    text-align: left;
+    margin: 5px;
+    width: 100%;
+
+    td {
+      padding: 5px;
+    }
+
+    tr {
+      margin: 3px;
+    }
+
+    thead tr {
+      border-bottom: solid 1px #ccc;
+    }
+
+    .playerColor {
+      width: 50px;
+
+      &:before {
+        content: ' ';
+        display: block;
+        width: 7px;
+        height: 7px;
+      }
+    }
+
+    .readyStatus {
+      width: 50px;
+
+      &:before {
+        display: inline-block;
+        width: 50px;
+      }
+
+      &.ready:before {
+        content: '✓';
+        color: green;
+      }
+
+      &.notReady:before {
+        content: 'X';
+        color: red;
+      }
+
+      &.offline {
+        color: #666;
+      }
+    }
+  }
 }
 
 @media (max-width: 600px) {

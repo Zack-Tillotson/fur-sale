@@ -18,6 +18,15 @@ export default (state) => {
     ? engine.get('players').sort((a, b) => b.get('currentBid') - a.get('currentBid')).first().get('currentBid') + 1
     : 0;
 
+    // Sessions
+  const sessions = game.get('sessions').map(session => {
+    const isSelf = authInfo.uid == session.get('playerId');
+
+    return session.merge({
+      isSelf
+    });
+  });
+
   // Players
   const activePlayerId = phase == 'buy'
     ? engine.getIn(['players', engine.get('currentPlayer')]).get('playerId')
@@ -48,12 +57,12 @@ export default (state) => {
 
   });
 
-  // Sessions
-  const sessions = game.get('sessions');
-
   // Meta information
-  const isGameOwner = isLoggedIn && game.get('owner') === authInfo.uid;
+  const isGameOwner = isLoggedIn && game.getIn(['upstream', 'owner']) === authInfo.uid;
+  const canJoinGame = isLoggedIn && !!game.get('gameId') && phase === 'pregame';
+  const hasJoinedGame = isLoggedIn && sessions.find(session => session.get('playerId') === authInfo.uid && session.get('connectionStatus') !== 'offline');
+  const readyToStart = isLoggedIn && phase === 'pregame' && sessions.size > 2 && sessions.size < 7 && !sessions.find(session => session.get('status') !== 'ready');
 
-  return {game, phase, visibleCards, visibleCardsGone, deckCardCount, minBid, players, sessions, isGameOwner};
+  return {game, phase, visibleCards, visibleCardsGone, deckCardCount, minBid, players, sessions, isGameOwner, canJoinGame, hasJoinedGame, readyToStart};
   
 }

@@ -18,13 +18,44 @@ function failure(dispatch, event, message) {
 
 // Thunks
 
-function beginSyncGameData() {
+function beginSyncGameData(gameId) {
 
   const event = 'gameData';
 
   return (dispatch, getState) => {
 
-    const {isLoggedIn} = firebaseSelector(getState());
+    const {isLoggedIn, authInfo} = firebaseSelector(getState());
+
+    if(!isLoggedIn) {
+      failure(dispatch, event, 'not logged in');
+    } else {
+
+      if(!gameId) {
+        failure(dispatch, event, 'no game joined');
+      } else {
+
+        utils.connect('games')
+          .child(gameId)
+          .on('value', snapshot => {
+            success(dispatch, 'syncGameId', snapshot.key());
+            dispatch(actions.dataReceived(snapshot.val()));
+
+            dispatch(touchSession());
+
+          });
+
+      }
+    }
+  }
+}
+
+function touchSession() {
+
+  const event = 'touchSession';
+
+  return (dispatch, getState) => {
+
+    const {isLoggedIn, authInfo} = firebaseSelector(getState());
 
     if(!isLoggedIn) {
       failure(dispatch, event, 'not logged in');
@@ -38,11 +69,41 @@ function beginSyncGameData() {
 
         utils.connect('games')
           .child(gameId)
-          .on('value', snapshot => {
-            dispatch(actions.dataReceived(snapshot.val()));
-          });
-
+          .child('sessions')
+          .child(authInfo.uid)
+          .transaction(value => {
+            if(value && value.connectionStatus === 'offline') {
+              return {
+                ...value,
+                activeAt: Firebase.ServerValue.TIMESTAMP,
+                connectionStatus: 'online',
+              } 
+            } else {
+              return undefined;
+            }
+          }, result => {
+            success(dispatch, event, result);
+        });
       }
+    }
+  }
+}
+
+function endSyncGameData() {
+
+  const event = 'gameData';
+
+  return (dispatch, getState) => {
+
+    const gameId = selector(getState()).game.get('gameId');
+
+    if(!gameId) {
+      failure(dispatch, event, 'no game joined');
+    } else {
+
+      utils.connect('games')
+        .child(gameId)
+        .off('value');
     }
   }
 }
@@ -69,14 +130,13 @@ function createGame(onSuccess) {
         .then(ref => {
           const id = ref.key();
           success(dispatch, event, id);
-          dispatch(joinGame(id));
           !!onSuccess && onSuccess(id);
         });
     }
   }
 }
 
-function joinGame(gameId) {
+function joinGame() {
 
   const event = 'joinGame';
 
@@ -89,49 +149,47 @@ function joinGame(gameId) {
     } else {
 
       const uid = authInfo.uid;
+      const gameId = selector(getState()).game.get('gameId');
       
       const ref = utils.connect('games')
         .child(gameId)
         .child('sessions')
         .child(uid);
 
-      ref.child('connectionStatus')
-        .onDisconnect()
-        .set('offline');
-
-      // Check to see if they already have joined the game
-      ref.once('value', snapshot => {
+      ref.transaction(value => {
 
         // If so just update their activity time
-        if(snapshot.exists()) {
+        if(!!value) {
 
-          ref.update({
+          return {
+            ...value,
             activeAt: Firebase.ServerValue.TIMESTAMP,
             connectionStatus: 'online',
-          }, error => {
-            if(!error) {
-              success(dispatch, event, gameId);
-              dispatch(beginSyncGameData());
-            } else {
-              failure(dispatch, event, error.code);
-            }
-          });
+          }
 
-        } else { // If not then add them
+        } else {
 
-          ref.set({
+          const name = authInfo[authInfo.provider].name || 'Anonymous Player';
+          const color = `rgb(${parseInt(Math.random() * 256)}, ${parseInt(Math.random() * 256)}, ${parseInt(Math.random() * 256)})`;
+
+          return {
             status: 'notReady', 
             connectionStatus: 'online',
             joinedAt: Firebase.ServerValue.TIMESTAMP, 
-            activeAt: Firebase.ServerValue.TIMESTAMP
-          }, error => {
-            if(!error) {
-              success(dispatch, event, gameId);
-              dispatch(beginSyncGameData());
-            } else {
-              failure(dispatch, event, error.code);
-            }
-          });
+            activeAt: Firebase.ServerValue.TIMESTAMP,
+            name,
+            color
+          }
+
+        }
+      }, error => {
+        if(!error) {
+          success(dispatch, event, gameId);
+          ref.child('connectionStatus')
+            .onDisconnect()
+            .set('offline');
+        } else {
+          failure(dispatch, event, error.code);
         }
       });
     }
@@ -355,7 +413,47 @@ function sellCard(card) {
 
 }
 
+function updateSessionInfo(info) {
+
+  const event = 'updateSessionInfo';
+
+  return (dispatch, getState) => {
+
+    const {authInfo, isLoggedIn} = firebaseSelector(getState());
+    
+    if(!isLoggedIn) {
+      failure(dispatch, event, 'not logged in');
+    } else {
+
+      const uid = authInfo.uid;
+
+      const state = selector(getState()).game;
+      const gameId = state.get('gameId');
+
+      if(!gameId) {
+        failure(dispatch, event, 'no game joined');
+      } else {
+
+        utils.connect('games')
+        .child(gameId)
+        .child('sessions')
+        .child(uid)
+        .update(info, error => {
+          if(!error) {
+            success(dispatch, event);
+          } else {
+            failure(dispatch, event, error.code)
+          }
+        });
+
+      }
+    }
+  }
+}
+
 export default {
+  beginSyncGameData,
+  endSyncGameData,
   createGame,
   joinGame,
   toggleReady,
@@ -363,4 +461,5 @@ export default {
   makeBet,
   passBet,
   sellCard,
+  updateSessionInfo,
 }

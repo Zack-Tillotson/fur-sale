@@ -1,4 +1,4 @@
-export default (data) => {
+export default (data = {}) => {
 
   const sessions = Object.keys(data).map(playerId => {
     return {

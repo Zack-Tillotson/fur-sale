@@ -33,5 +33,17 @@ export default function(dispatch, props) {
       dispatch(apiActions.sellCard(card));
     },
 
+    updatePlayerName(name) {
+      dispatch(apiActions.updateSessionInfo({name}));
+    },
+
+    beginSyncGameData(id) {
+      dispatch(apiActions.beginSyncGameData(id));
+    },
+
+    endSyncGameData(id) {
+      dispatch(apiActions.endSyncGameData(id));
+    },
+
 	};
 }

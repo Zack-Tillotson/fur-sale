@@ -7,6 +7,7 @@ import fbSelector from '../../../firebase/selector';
 
 import styles from './styles';
 
+import LoginForm from '../../LoginForm';
 import PhaseTitle from '../PhaseTitle';
 import CardTable from '../CardTable';
 import PlayerList from '../PlayerList';
@@ -23,6 +24,7 @@ const GameView = React.createClass({
 
   componentDidMount() {
     if(this.props.firebase.isLoggedIn) {
+      this.props.registerGameId(this.props.params.gameId);
       this.connectToFirebaseData();
     }
   },
@@ -34,51 +36,70 @@ const GameView = React.createClass({
   },
 
   connectToFirebaseData() {
-    this.props.joinGame(this.props.params.gameId);
+    this.props.beginSyncGameData(this.props.params.gameId);
   },
 
   componentWillUnmount() {
-    // TODO remove the data connection
+    this.props.endSyncGameData(this.props.params.gameId);
   },
 
   render() {
     return (
       <InlineCss stylesheet={styles} componentName="component">
 
-        <PhaseTitle 
-          phase={this.props.furSale.phase} />
+        {this.props.firebase.isLoggedIn && (
 
-        {this.props.furSale.phase === 'pregame' && (
+          <div className="gameContainer">
 
-          <div className="pregame">
+            <PhaseTitle 
+              phase={this.props.furSale.phase} />
 
-            <PregameActions 
-              isOwner={this.props.furSale.isGameOwner}
-              toggleReady={this.props.toggleReady} 
-              startGame={this.props.startGame} />
+            {this.props.furSale.phase === 'pregame' && (
 
-          </div>
+              <div className="pregame">
 
-        )}
+                <PlayerSessions 
+                  sessions={this.props.furSale.sessions} 
+                  showReadyStatus={this.props.furSale.phase === 'pregame'}
+                  toggleReady={this.props.toggleReady}
+                  updatePlayerName={this.props.updatePlayerName} />
 
-        {this.props.furSale.phase !== 'pregame' && (
+                <PregameActions
+                  canJoin={this.props.furSale.canJoinGame && !this.props.furSale.hasJoinedGame}
+                  joinGame={this.props.joinGame}
+                  canStartGame={this.props.furSale.isGameOwner}
+                  readyToStart={this.props.furSale.readyToStart}
+                  playerCount={this.props.furSale.players.size}
+                  startGame={this.props.startGame} />                
 
-          <div className="inGame">
+              </div>
 
-            <CardTable 
-              visibleCardsGone={this.props.furSale.visibleCardsGone}
-              visibleCards={this.props.furSale.visibleCards} />
+            )}
 
-            <PlayerList
-              players={this.props.furSale.players} 
-              passBet={this.props.passBet}
-              makeBet={this.props.makeBet} />
+            {this.props.furSale.phase !== 'pregame' && (
 
-          </div>
+              <div className="inGame">
 
-        )}
+                <CardTable 
+                  visibleCardsGone={this.props.furSale.visibleCardsGone}
+                  visibleCards={this.props.furSale.visibleCards} />
 
-        <PlayerSessions sessions={this.props.furSale.sessions} />
+                <PlayerList
+                  players={this.props.furSale.players} 
+                  passBet={this.props.passBet}
+                  makeBet={this.props.makeBet} />
+
+              </div>
+
+            )}
+
+        </div>
+
+      )}
+
+      {!this.props.firebase.isLoggedIn && (
+        <LoginForm />
+      )}
 
       </InlineCss>
     );
@@ -88,6 +109,7 @@ const GameView = React.createClass({
 const selector = (state) => {
   const furSale = appSelector(state);
   const firebase = fbSelector(state);
+
   return {furSale, firebase};
 }
 

@@ -45,7 +45,7 @@ export default function(state = defaultState, action) {
     case actionTypes.apiSuccessful:
       switch(action.event) {
 
-        case 'joinGame':
+        case 'syncGameId':
           return state.merge({
             gameId: action.data,
           });
@@ -63,7 +63,8 @@ export default function(state = defaultState, action) {
       newState = newState.mergeIn(['engine'], Immutable.fromJS(gameReducer(state, newState)));
 
       // User session info!
-      newState = newState.set('sessions', Immutable.fromJS(sessionReducer(action.data.sessions)));
+      const sessions = (action.data || {}).sessions;
+      newState = newState.set('sessions', Immutable.fromJS(sessionReducer(sessions)));
 
       return newState;
   
