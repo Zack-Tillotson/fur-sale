@@ -45,7 +45,7 @@ export default function(state = defaultState, action) {
     case actionTypes.apiSuccessful:
       switch(action.event) {
 
-        case 'syncGameId':
+        case 'beginSyncGameData':
           return state.merge({
             gameId: action.data,
           });

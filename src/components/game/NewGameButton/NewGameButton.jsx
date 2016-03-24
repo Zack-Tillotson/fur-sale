@@ -17,7 +17,7 @@ const NewGameButton = React.createClass({
   },
 
   createGameAndNavigate() {
-    this.props.createGame(this.navigateToGame);
+    this.props.createGame().then(this.navigateToGame);
   },
 
   navigateToGame(id) {

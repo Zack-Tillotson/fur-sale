@@ -63,7 +63,7 @@ export default React.createClass({
           {player.get('currentBid') > 0 && player.get('currentBid')}
         </div>
         <div className="playerName">
-          {player.get('name')}
+          Player: {player.get('name')}
         </div>
         <div className="money">
           ${player.get('money')}

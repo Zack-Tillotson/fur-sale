@@ -4,8 +4,8 @@
 import Immutable from 'immutable';
 import util from './util';
 
-const INITIAL_DISCARD_SIZE = 6;
 const INITIAL_PLAYER_MONEY = 14;
+const DECK_SIZE = 30;
 
 // State shape:
 // {
@@ -36,7 +36,7 @@ function getInitialBuyPhaseState(seed, sessions) {
   util.shuffle(rng, players);
 
   const cards = [];
-  for(let i = 1 ; i <= 30 ; i++) {
+  for(let i = 1 ; i <= DECK_SIZE ; i++) {
     cards.push(i);
   }
   util.shuffle(rng, cards);
@@ -45,7 +45,7 @@ function getInitialBuyPhaseState(seed, sessions) {
   const currentPlayer = 0;
   const visibleCards = cards.slice(0, players.length).sort();
   const deckCards = cards.slice(players.length);
-  const goneCardCount = INITIAL_DISCARD_SIZE;
+  const goneCardCount = DECK_SIZE % players.length;
   const rngUse = rng.getUseCount();
 
   return Immutable.fromJS({
@@ -85,7 +85,7 @@ function getInitialSellPhaseState(state, rng) {
   const phase = 'sell';
   const visibleCards = cards.take(players.size).sort();
   const deckCards = cards.skip(players.size);
-  const goneCardCount = INITIAL_DISCARD_SIZE;
+  const goneCardCount = DECK_SIZE % players.length;
 
   return state.merge({
     phase,

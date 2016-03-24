@@ -6,6 +6,31 @@ import Firebase from 'firebase';
 
 // This folder contains thunks for interacting with Fur Sale on Firebase.
 
+// Decorators
+
+// Must be logged in, adds user id to options
+function requireLogin(event, dispatch, getState) {
+  const {isLoggedIn, authInfo} = firebaseSelector(getState());
+
+  if(!isLoggedIn) {
+    failure(dispatch, event, 'not logged in');
+  } else {
+    return authInfo.uid;
+  }
+}
+
+// Must have joined game, add game id to options
+function requireGame(event, dispatch, getState) {
+  
+  const gameId = selector(getState()).game.get('gameId');
+
+  if(!gameId) {
+    failure(dispatch, event, 'no game joined');
+  } else {
+    return gameId;
+  }
+}
+
 // Callbacks
 
 function success(dispatch, event, data) {
@@ -16,89 +41,64 @@ function failure(dispatch, event, message) {
 	dispatch(actions.apiFailed(event, message));
 }
 
-// Thunks
-
 function beginSyncGameData(gameId) {
+  return function(dispatch, getState) {
 
-  const event = 'gameData';
+    const event = 'beginSyncGameData';
+    const uid = requireLogin(event, dispatch, getState);
 
-  return (dispatch, getState) => {
+    if(uid) {
 
-    const {isLoggedIn, authInfo} = firebaseSelector(getState());
-
-    if(!isLoggedIn) {
-      failure(dispatch, event, 'not logged in');
-    } else {
-
-      if(!gameId) {
-        failure(dispatch, event, 'no game joined');
-      } else {
-
-        utils.connect('games')
-          .child(gameId)
-          .on('value', snapshot => {
-            success(dispatch, 'syncGameId', snapshot.key());
-            dispatch(actions.dataReceived(snapshot.val()));
-
-            dispatch(touchSession());
-
-          });
-      }
+      utils.connect('games')
+        .child(gameId)
+        .on('value', snapshot => {
+          success(dispatch, event, snapshot.key());
+          dispatch(actions.dataReceived(snapshot.val()));
+          dispatch(touchSession());
+        });
     }
   }
 }
 
 function touchSession() {
+  return function(dispatch, getState) {
 
-  const event = 'touchSession';
+    const event = 'touchSession';
+    const uid = requireLogin(event, dispatch, getState);
+    const gameId = requireGame(event, dispatch, getState);
 
-  return (dispatch, getState) => {
+    if(uid && gameId) {
 
-    const {isLoggedIn, authInfo} = firebaseSelector(getState());
-
-    if(!isLoggedIn) {
-      failure(dispatch, event, 'not logged in');
-    } else {
-
-      const gameId = selector(getState()).game.get('gameId');
-
-      if(!gameId) {
-        failure(dispatch, event, 'no game joined');
-      } else {
-
-        utils.connect('games')
-          .child(gameId)
-          .child('sessions')
-          .child(authInfo.uid)
-          .transaction(value => {
-            if(value && value.connectionStatus === 'offline') {
-              return {
-                ...value,
-                activeAt: Firebase.ServerValue.TIMESTAMP,
-                connectionStatus: 'online',
-              } 
-            } else {
-              return undefined;
-            }
-          }, result => {
-            success(dispatch, event, result);
-        });
-      }
+      utils.connect('games')
+        .child(gameId)
+        .child('sessions')
+        .child(uid)
+        .transaction(value => {
+          if(value && value.connectionStatus === 'offline') {
+            return {
+              ...value,
+              activeAt: Firebase.ServerValue.TIMESTAMP,
+              connectionStatus: 'online',
+            } 
+          } else {
+            return undefined;
+          }
+        }, result => {
+          success(dispatch, event, result);
+      });
     }
+
   }
 }
 
 function endSyncGameData() {
+  return function(dispatch, getState) {
 
-  const event = 'gameData';
+    const event = 'endSyncGameData';
+    const uid = requireLogin(event, dispatch, getState);
+    const gameId = requireGame(event, dispatch, getState);
 
-  return (dispatch, getState) => {
-
-    const gameId = selector(getState()).game.get('gameId');
-
-    if(!gameId) {
-      failure(dispatch, event, 'no game joined');
-    } else {
+    if(uid && gameId) {
 
       utils.connect('games')
         .child(gameId)
@@ -107,358 +107,240 @@ function endSyncGameData() {
   }
 }
 
-function createGame(onSuccess) {
+function createGame() {
+  return function(dispatch, getState) {
 
-  const event = 'createGame';
+    const event = 'createGame';
+    const uid = requireLogin(event, dispatch, getState);
 
-  return (dispatch, getState) => {
-
-    const {authInfo, isLoggedIn} = firebaseSelector(getState());
-
-    if(!isLoggedIn) {
-      failure(dispatch, event, 'not logged in');
-    } else {
-
-      const owner = authInfo.uid;
-      const rngSeed = Math.random().toString(36);
-      const gameMode = 'lobby';
-      const createdAt = Firebase.ServerValue.TIMESTAMP;
+    const owner = uid;
+    const rngSeed = Math.random().toString(36);
+    const gameMode = 'lobby';
+    const createdAt = Firebase.ServerValue.TIMESTAMP;
     
+    return new Promise(function(resolve, reject) {
       utils.connect('games')
         .push({owner, rngSeed, gameMode, createdAt})
         .then(ref => {
           const id = ref.key();
           success(dispatch, event, id);
-          !!onSuccess && onSuccess(id);
+          resolve(id);
         });
-    }
+    });
   }
 }
 
 function joinGame() {
+  return function(dispatch, getState) {
 
-  const event = 'joinGame';
-
-  return (dispatch, getState) => {
-
-    const {authInfo, isLoggedIn} = firebaseSelector(getState());
-
-    if(!isLoggedIn) {
-      failure(dispatch, event, 'not logged in');
-    } else {
-
-      const uid = authInfo.uid;
-      const gameId = selector(getState()).game.get('gameId');
+    const event = 'joinGame';
+    const uid = requireLogin(event, dispatch, getState);
+    const gameId = requireGame(event, dispatch, getState);
       
-      const ref = utils.connect('games')
-        .child(gameId)
-        .child('sessions')
-        .child(uid);
+    const ref = utils.connect('games')
+      .child(gameId)
+      .child('sessions')
+      .child(uid);
 
-      ref.transaction(value => {
+    ref.transaction(value => {
 
-        // If so just update their activity time
-        if(!!value) {
+      // If so just update their activity time
+      if(!!value) {
 
-          return {
-            ...value,
-            activeAt: Firebase.ServerValue.TIMESTAMP,
-            connectionStatus: 'online',
-          }
-
-        } else {
-
-          const name = authInfo[authInfo.provider].name || 'Anonymous Player';
-          const color = `rgb(${parseInt(Math.random() * 256)}, ${parseInt(Math.random() * 256)}, ${parseInt(Math.random() * 256)})`;
-
-          return {
-            status: 'notReady', 
-            connectionStatus: 'online',
-            joinedAt: Firebase.ServerValue.TIMESTAMP, 
-            activeAt: Firebase.ServerValue.TIMESTAMP,
-            name,
-            color
-          }
-
+        return {
+          ...value,
+          activeAt: Firebase.ServerValue.TIMESTAMP,
+          connectionStatus: 'online',
         }
-      }, error => {
-        if(!error) {
-          success(dispatch, event, gameId);
-          ref.child('connectionStatus')
-            .onDisconnect()
-            .set('offline');
-        } else {
-          failure(dispatch, event, error.code);
+
+      } else {
+
+        const {authInfo} = firebaseSelector(getState());
+        const name = authInfo[authInfo.provider].name || 'Anonymous Player';
+        const color = `rgb(${parseInt(Math.random() * 256)}, ${parseInt(Math.random() * 256)}, ${parseInt(Math.random() * 256)})`;
+
+        return {
+          status: 'notReady', 
+          connectionStatus: 'online',
+          joinedAt: Firebase.ServerValue.TIMESTAMP, 
+          activeAt: Firebase.ServerValue.TIMESTAMP,
+          name,
+          color
         }
-      });
-    }
+
+      }
+    }, error => {
+      if(!error) {
+        success(dispatch, event, gameId);
+        ref.child('connectionStatus')
+          .onDisconnect()
+          .set('offline');
+      } else {
+        failure(dispatch, event, error.code);
+      }
+    });
   }
 }
 
 function toggleReady() {
+  return function(dispatch, getState) {
 
-  const event = 'toggleReady';
+    const event = 'toggleReady';
+    const uid = requireLogin(event, dispatch, getState);
+    const gameId = requireGame(event, dispatch, getState);
 
-  return (dispatch, getState) => {
+    let status = 'unknown';
 
-    const {authInfo, isLoggedIn} = firebaseSelector(getState());
-    
-    if(!isLoggedIn) {
-      failure(dispatch, event, 'not logged in');
-    } else {
-
-      const uid = authInfo.uid;
-
-      const gameId = selector(getState()).game.get('gameId');
-
-      if(!gameId) {
-        failure(dispatch, event, 'no game joined');
+    utils.connect('games')
+    .child(gameId)
+    .child('sessions')
+    .child(uid)
+    .child('status')
+    .transaction(statusData => {
+      if(statusData === 'ready') {
+        status = 'notReady';
       } else {
-
-        let status = 'unknown';
-
-        utils.connect('games')
-        .child(gameId)
-        .child('sessions')
-        .child(uid)
-        .child('status')
-        .transaction(statusData => {
-          if(statusData === 'ready') {
-            status = 'notReady';
-          } else {
-            status = 'ready';
-          }
-          return status;
-        }, error => {
-          if(!error) {
-            success(dispatch, event, status);
-          } else {
-            failure(dispatch, event, error.code)
-          }
-        });
-
+        status = 'ready';
       }
-    }
+      return status;
+    }, error => {
+      if(!error) {
+        success(dispatch, event, status);
+      } else {
+        failure(dispatch, event, error.code)
+      }
+    });
   }
 }
 
 function startGame() {
+  return function(dispatch, getState) {
 
-  const event = 'startGame';
-
-  return (dispatch, getState) => {
-
-    const {authInfo, isLoggedIn} = firebaseSelector(getState());
-    
-    if(!isLoggedIn) {
-      failure(dispatch, event, 'not logged in');
-    } else {
-
-      const uid = authInfo.uid;
-
-      const state = selector(getState()).game;
-      const gameId = state.get('gameId');
-      const status = state.getIn(['upstream', 'gameMode']);
-
-      if(!gameId) {
-        failure(dispatch, event, 'no game joined');
-      } else if(status !== 'lobby') {
-        failure(dispatch, event, 'can only start games in lobby mode');
+    const event = 'startGame';
+    const uid = requireLogin(event, dispatch, getState);
+    const gameId = requireGame(event, dispatch, getState);
+  
+    utils.connect('games')
+    .child(gameId)
+    .child('gameMode')
+    .set('playing', error => {
+      if(!error) {
+        success(dispatch, event);
       } else {
-
-        utils.connect('games')
-        .child(gameId)
-        .child('gameMode')
-        .set('playing', error => {
-          if(!error) {
-            success(dispatch, event);
-          } else {
-            failure(dispatch, event, error.code)
-          }
-        });
-
+        failure(dispatch, event, error.code)
       }
-    }
+    });
   }
-
 }
 
 function makeBet(amount) {
+  return function(dispatch, getState) {
 
-  const event = 'makeBet';
+    const event = 'makeBet';
+    const uid = requireLogin(event, dispatch, getState);
+    const gameId = requireGame(event, dispatch, getState);
 
-  return (dispatch, getState) => {
-
-    const {authInfo, isLoggedIn} = firebaseSelector(getState());
-    
-    if(!isLoggedIn) {
-      failure(dispatch, event, 'not logged in');
-    } else {
-
-      const uid = authInfo.uid;
-
-      const state = selector(getState()).game;
-      const gameId = state.get('gameId');
-
-      if(!gameId) {
-        failure(dispatch, event, 'no game joined');
-      } else {
-
-        const decision = {
-          timestamp: Firebase.ServerValue.TIMESTAMP,
-          choice: 'raiseTo',
-          amount
-        }
-
-        utils.connect('games')
-        .child(gameId)
-        .child('decisions')
-        .push(decision, error => {
-          if(!error) {
-            success(dispatch, event);
-          } else {
-            failure(dispatch, event, error.code)
-          }
-        });
-
-      }
+    const decision = {
+      timestamp: Firebase.ServerValue.TIMESTAMP,
+      choice: 'raiseTo',
+      amount
     }
+
+    utils.connect('games')
+    .child(gameId)
+    .child('decisions')
+    .push(decision, error => {
+      if(!error) {
+        success(dispatch, event);
+      } else {
+        failure(dispatch, event, error.code)
+      }
+    });
   }
 }
 
 function passBet() {
+  return function(dispatch, getState) {
 
-  const event = 'passBet';
+    const event = 'passBet';
+    const uid = requireLogin(event, dispatch, getState);
+    const gameId = requireGame(event, dispatch, getState);
 
-  return (dispatch, getState) => {
-
-    const {authInfo, isLoggedIn} = firebaseSelector(getState());
-    
-    if(!isLoggedIn) {
-      failure(dispatch, event, 'not logged in');
-    } else {
-
-      const uid = authInfo.uid;
-
-      const state = selector(getState()).game;
-      const gameId = state.get('gameId');
-
-      if(!gameId) {
-        failure(dispatch, event, 'no game joined');
-      } else {
-
-        const decision = {
-          timestamp: Firebase.ServerValue.TIMESTAMP,
-          choice: 'pass'
-        }
-
-        utils.connect('games')
-        .child(gameId)
-        .child('decisions')
-        .push(decision, error => {
-          if(!error) {
-            success(dispatch, event);
-          } else {
-            failure(dispatch, event, error.code)
-          }
-        });
-
-      }
+    const decision = {
+      timestamp: Firebase.ServerValue.TIMESTAMP,
+      choice: 'pass'
     }
+
+    utils.connect('games')
+    .child(gameId)
+    .child('decisions')
+    .push(decision, error => {
+      if(!error) {
+        success(dispatch, event);
+      } else {
+        failure(dispatch, event, error.code)
+      }
+    });
   }
 }
 
 function sellCard(card) {
+  return function(dispatch, getState) {
 
-  const event = 'selectCard';
+    const event = 'sellCard';
+    const uid = requireLogin(event, dispatch, getState);
+    const gameId = requireGame(event, dispatch, getState);
 
-  return (dispatch, getState) => {
-
-    const {authInfo, isLoggedIn} = firebaseSelector(getState());
-    
-    if(!isLoggedIn) {
-      failure(dispatch, event, 'not logged in');
-    } else {
-
-      const uid = authInfo.uid;
-
-      const state = selector(getState()).game;
-      const gameId = state.get('gameId');
-
-      if(!gameId) {
-        failure(dispatch, event, 'no game joined');
-      } else {
-
-        const decision = {
-          timestamp: Firebase.ServerValue.TIMESTAMP,
-          playerId: uid,
-          card,
-        }
-
-        utils.connect('games')
-        .child(gameId)
-        .child('decisions')
-        .push(decision, error => {
-          if(!error) {
-            success(dispatch, event);
-          } else {
-            failure(dispatch, event, error.code)
-          }
-        });
-
-      }
+    const decision = {
+      timestamp: Firebase.ServerValue.TIMESTAMP,
+      playerId: uid,
+      card,
     }
-  }
 
+    utils.connect('games')
+    .child(gameId)
+    .child('decisions')
+    .push(decision, error => {
+      if(!error) {
+        success(dispatch, event);
+      } else {
+        failure(dispatch, event, error.code)
+      }
+    });
+  }
 }
 
 function updateSessionInfo(info) {
+  return function(dispatch, getState) {
 
-  const event = 'updateSessionInfo';
+    const event = 'updateSessionInfo';
+    const uid = requireLogin(event, dispatch, getState);
+    const gameId = requireGame(event, dispatch, getState);
 
-  return (dispatch, getState) => {
-
-    const {authInfo, isLoggedIn} = firebaseSelector(getState());
-    
-    if(!isLoggedIn) {
-      failure(dispatch, event, 'not logged in');
-    } else {
-
-      const uid = authInfo.uid;
-
-      const state = selector(getState()).game;
-      const gameId = state.get('gameId');
-
-      if(!gameId) {
-        failure(dispatch, event, 'no game joined');
+    utils.connect('games')
+    .child(gameId)
+    .child('sessions')
+    .child(uid)
+    .update(info, error => {
+      if(!error) {
+        success(dispatch, event);
       } else {
-
-        utils.connect('games')
-        .child(gameId)
-        .child('sessions')
-        .child(uid)
-        .update(info, error => {
-          if(!error) {
-            success(dispatch, event);
-          } else {
-            failure(dispatch, event, error.code)
-          }
-        });
-
+        failure(dispatch, event, error.code)
       }
-    }
+    });
   }
 }
 
 export default {
-  beginSyncGameData,
-  endSyncGameData,
-  createGame,
-  joinGame,
-  toggleReady,
-  startGame,
-  makeBet,
+  beginSyncGameData, 
+  touchSession, 
+  endSyncGameData, 
+  createGame, 
+  joinGame, 
+  toggleReady, 
+  startGame, 
+  makeBet, 
   passBet,
-  sellCard,
-  updateSessionInfo,
+  sellCard, 
+  updateSessionInfo
 }

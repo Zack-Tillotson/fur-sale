@@ -35,7 +35,7 @@ export default React.createClass({
             <button disabled={!this.props.readyToStart} className={readyToStartClass} onClick={this.startGameHandler}>Start Game</button>        
             {!this.props.readyToStart && (
               <ul>
-                {this.props.playerCount < 3 && (
+                {this.props.playerCount < 2 && (
                   <li>Must have at least two players.</li>
                 )}
                 {this.props.playerCount > 6 && (

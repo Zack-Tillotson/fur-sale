@@ -94,13 +94,14 @@ export default React.createClass({
             )}
             {sessions.map(session => {
 
+              const selfClass = session.get('isSelf') ? 'isSelf' : 'notSelf';
               const connectionClass = session.get('connectionStatus');
               const readyClass = session.get('connectionStatus') === 'offline' ? 'offline' : session.get('status');
 
               const playerColor = session.get('color');
 
               return (
-                <tr key={session.get('playerId')}>
+                <tr key={session.get('playerId')} className={selfClass}>
                   <td className="playerName">
                     {this.getPlayerName(session)}
                   </td>
