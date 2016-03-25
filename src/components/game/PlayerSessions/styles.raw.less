@@ -21,42 +21,15 @@ component {
     }
 
     .isSelf {
-      background: lightgreen;
+      background: #DCF0FF;
     }
 
-    .playerColor {
-      width: 50px;
-
-      &:before {
-        content: ' ';
-        display: block;
-        width: 7px;
-        height: 7px;
-      }
+    .placeholder {
+      text-align: center;
+      color: #ccc;
+      background: #f6f6f6;
     }
 
-    .readyStatus {
-      width: 50px;
-
-      &:before {
-        display: inline-block;
-        width: 50px;
-      }
-
-      &.ready:before {
-        content: '✓';
-        color: green;
-      }
-
-      &.notReady:before {
-        content: 'X';
-        color: red;
-      }
-
-      &.offline {
-        color: #666;
-      }
-    }
   }
 }
 

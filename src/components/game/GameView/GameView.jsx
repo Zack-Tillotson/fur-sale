@@ -24,19 +24,23 @@ const GameView = React.createClass({
 
   componentDidMount() {
     if(this.props.firebase.isLoggedIn) {
-      this.props.registerGameId(this.props.params.gameId);
       this.connectToFirebaseData();
     }
   },
 
   componentWillReceiveProps(nextProps) {
     if(!this.props.firebase.isLoggedIn && nextProps.firebase.isLoggedIn) {
-      setTimeout(this.connectToFirebaseData, 250);
+      this.connectToFirebaseData();
     }
   },
 
   connectToFirebaseData() {
-    this.props.beginSyncGameData(this.props.params.gameId);
+    this.props.beginSyncGameData(this.props.params.gameId)
+       .then(() => {
+        if(this.props.furSale.canJoinGame) {
+          this.props.joinGame();
+        }
+      });
   },
 
   componentWillUnmount() {
@@ -59,16 +63,12 @@ const GameView = React.createClass({
               <div className="pregame">
 
                 <PlayerSessions 
+                  canJoinGame={this.props.furSale.canJoinGame}
                   sessions={this.props.furSale.sessions} 
-                  showReadyStatus={this.props.furSale.phase === 'pregame'}
-                  toggleReady={this.props.toggleReady}
                   updatePlayerName={this.props.updatePlayerName} />
 
                 <PregameActions
-                  canJoin={this.props.furSale.canJoinGame && !this.props.furSale.hasJoinedGame}
-                  joinGame={this.props.joinGame}
-                  canStartGame={this.props.furSale.isGameOwner}
-                  readyToStart={this.props.furSale.readyToStart}
+                  canStartGame={this.props.furSale.isGameOwner && this.props.furSale.readyToStart}
                   playerCount={this.props.furSale.players.size}
                   startGame={this.props.startGame} />                
 
@@ -98,7 +98,10 @@ const GameView = React.createClass({
       )}
 
       {!this.props.firebase.isLoggedIn && (
-        <LoginForm />
+        <div className="loginGate">
+          <h1>Please log in before joining this game.</h1>
+          <LoginForm />
+        </div>
       )}
 
       </InlineCss>

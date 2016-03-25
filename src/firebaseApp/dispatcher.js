@@ -13,10 +13,6 @@ export default function(dispatch, props) {
       dispatch(apiActions.joinGame(gameId));
     },
 
-    toggleReady() {
-      dispatch(apiActions.toggleReady());
-    },
-
     startGame() {
       dispatch(apiActions.startGame());
     },
@@ -38,7 +34,7 @@ export default function(dispatch, props) {
     },
 
     beginSyncGameData(id) {
-      dispatch(apiActions.beginSyncGameData(id));
+      return dispatch(apiActions.beginSyncGameData(id));
     },
 
     endSyncGameData(id) {

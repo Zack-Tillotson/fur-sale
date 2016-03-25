@@ -58,12 +58,12 @@ export default React.createClass({
 
     return (
       <InlineCss stylesheet={styles} componentName="component" className={`${isActiveClass} ${isSelfClass}`}>
+        <div className="playerName">
+          Player: {player.get('name')}
+        </div>
         <div className="prevAction">
           {action}
           {player.get('currentBid') > 0 && player.get('currentBid')}
-        </div>
-        <div className="playerName">
-          Player: {player.get('name')}
         </div>
         <div className="money">
           ${player.get('money')}

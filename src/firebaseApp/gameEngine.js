@@ -45,7 +45,12 @@ function getInitialBuyPhaseState(seed, sessions) {
   const currentPlayer = 0;
   const visibleCards = cards.slice(0, players.length).sort();
   const deckCards = cards.slice(players.length);
-  const goneCardCount = DECK_SIZE % players.length;
+  const goneCardCount = 
+    players.length === 2 ? 10 :
+    players.length === 3 ? 6 :
+    players.length === 4 ? 2 :
+    0;
+
   const rngUse = rng.getUseCount();
 
   return Immutable.fromJS({
@@ -85,7 +90,11 @@ function getInitialSellPhaseState(state, rng) {
   const phase = 'sell';
   const visibleCards = cards.take(players.size).sort();
   const deckCards = cards.skip(players.size);
-  const goneCardCount = DECK_SIZE % players.length;
+  const goneCardCount = 
+    players.length === 2 ? 10 :
+    players.length === 3 ? 6 :
+    players.length === 4 ? 2 :
+    0;
 
   return state.merge({
     phase,

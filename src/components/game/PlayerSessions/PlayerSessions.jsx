@@ -5,14 +5,16 @@ import styles from './styles.raw.less';
 export default React.createClass({
 
   propTypes: {
+    canJoinGame: React.PropTypes.bool.isRequired,
     sessions: React.PropTypes.object.isRequired,
-    showReadyStatus: React.PropTypes.bool,
     updatePlayerName: React.PropTypes.func.isRequired,
-    toggleReady: React.PropTypes.func.isRequired,
+    maxPlayers: React.PropTypes.number,
   },
 
   getDefaultProps() {
-    return {showReadyStatus: true}
+    return {
+      maxPlayers: 6,
+    }
   },
 
   getInitialState() {
@@ -61,10 +63,19 @@ export default React.createClass({
     this.setState({editName});
   },
 
-
-  toggleReadyHandler(event) {
-    event.preventDefault();
-    this.props.toggleReady();
+  getPlayerPlaceholders() {
+    const placeHolderCount = this.props.maxPlayers - this.props.sessions.size;
+    const ret = [];
+    for(let i = 0 ; i < placeHolderCount ; i++) {
+      ret.push(
+        <tr key={'placeholder ' + i}>
+          <td colSpan={2} className="placeholder">
+            Empty
+          </td>
+        </tr>
+      );
+    }
+    return ret;
   },
 
   render() {
@@ -78,49 +89,28 @@ export default React.createClass({
           <thead>
             <tr>
               <td className="playerName">Name</td>
-              <td className="playerColor">Color</td>
-              {this.props.showReadyStatus && [(
-                <td key="status" className="readyStatus">Ready?</td>
-              ), (
-                <td key="action" className="actionButtons"></td>
-              )]}
+              <td className="connectionStatus"></td>
             </tr>
           </thead>
           <tbody>
-            {sessions.size === 0 && (
-              <tr className="noPlayersMessage">
-                <td colSpan={2 + this.props.showReadyStatus ? 2 : 0}>No players yet</td>
-              </tr>
-            )}
             {sessions.map(session => {
 
               const selfClass = session.get('isSelf') ? 'isSelf' : 'notSelf';
               const connectionClass = session.get('connectionStatus');
-              const readyClass = session.get('connectionStatus') === 'offline' ? 'offline' : session.get('status');
-
-              const playerColor = session.get('color');
 
               return (
                 <tr key={session.get('playerId')} className={selfClass}>
                   <td className="playerName">
                     {this.getPlayerName(session)}
                   </td>
-                  <td className={`playerColor`} style={{backgroundColor: playerColor}}> </td>
-                  {this.props.showReadyStatus && [(
-                    <td key="readystatus" className={`readyStatus ${readyClass} ${connectionClass}`}>
-                      {session.get('connectionStatus') === 'offline' && 'offline'}
-                    </td>
-                  ), (
-                    <td key="readybutton" className="actionButtons">
-                      {session.get('isSelf') && (
-                        <button onClick={this.toggleReadyHandler}>Ready</button>
-                      )}
-                    </td>
-                  )]}
+                  <td className="connectionStatus">
+                    {session.get('connectionStatus') === 'offline' && 'offline'}
+                  </td>
                 </tr>
               );
 
             })}
+            {this.getPlayerPlaceholders()}
           </tbody>
         </table>
 

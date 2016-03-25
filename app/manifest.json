@@ -1,0 +1,7 @@
+{
+  "name": "Fur Sale! the For Sale clone with cats!",
+  "start_url": "/index.html",
+  "short_name": "Fur Sale!",
+  "display": "standalone",
+  "orientation": "landscape"
+}

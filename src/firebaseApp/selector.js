@@ -61,7 +61,7 @@ export default (state) => {
   const isGameOwner = isLoggedIn && game.getIn(['upstream', 'owner']) === authInfo.uid;
   const canJoinGame = isLoggedIn && !!game.get('gameId') && phase === 'pregame';
   const hasJoinedGame = isLoggedIn && sessions.find(session => session.get('playerId') === authInfo.uid && session.get('connectionStatus') !== 'offline');
-  const readyToStart = isLoggedIn && phase === 'pregame' && sessions.size > 1 && sessions.size < 7 && !sessions.find(session => session.get('status') !== 'ready');
+  const readyToStart = isLoggedIn && phase === 'pregame' && sessions.size > 1 && sessions.size < 7;
 
   return {game, phase, visibleCards, visibleCardsGone, deckCardCount, minBid, players, sessions, isGameOwner, canJoinGame, hasJoinedGame, readyToStart};
   

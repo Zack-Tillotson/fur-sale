@@ -4,13 +4,11 @@ import Random from 'random-js';
 // with the seed and cycled discard times.
 function getRng(seed, discard = 0) {
 
-  const rng = Random.engines.mt19937();
-  
-  rng.seed(seed);
+  const rng = Random.engines.mt19937().seed(seed);
   
   if(discard > 0) {
     rng.discard(discard);
-   }
+  }
   
   return rng;
   

@@ -21,12 +21,12 @@ export default React.createClass({
   render() {
     return (
       <InlineCss stylesheet={styles} componentName="component">
-        {this.props.visibleCards.map(card => (
+        {this.props.visibleCards.sort().map(card => (
             <Card key={card} value={card} size="large" />
           )
         )}
         {this.getGoneCardsArray().map((card, index) => (
-            <div className="card gone" key={'gone' + index}>X</div>
+            <Card key={'gone' + index} value={0} size="large" />
           )
         )}
       </InlineCss>

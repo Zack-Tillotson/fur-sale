@@ -47,16 +47,21 @@ function beginSyncGameData(gameId) {
     const event = 'beginSyncGameData';
     const uid = requireLogin(event, dispatch, getState);
 
-    if(uid) {
+    return  new Promise((resolve, reject) => {
+      if(uid) {
 
-      utils.connect('games')
-        .child(gameId)
-        .on('value', snapshot => {
-          success(dispatch, event, snapshot.key());
-          dispatch(actions.dataReceived(snapshot.val()));
-          dispatch(touchSession());
-        });
-    }
+        utils.connect('games')
+          .child(gameId)
+          .on('value', snapshot => {
+            success(dispatch, event, snapshot.key());
+            dispatch(actions.dataReceived(snapshot.val()));
+            dispatch(touchSession());
+            resolve();
+          });
+      } else {
+        reject();
+      }
+    })
   }
 }
 
@@ -114,7 +119,7 @@ function createGame() {
     const uid = requireLogin(event, dispatch, getState);
 
     const owner = uid;
-    const rngSeed = Math.random().toString(36);
+    const rngSeed = Math.random() + Date.now();
     const gameMode = 'lobby';
     const createdAt = Firebase.ServerValue.TIMESTAMP;
     
@@ -157,15 +162,12 @@ function joinGame() {
 
         const {authInfo} = firebaseSelector(getState());
         const name = authInfo[authInfo.provider].name || 'Anonymous Player';
-        const color = `rgb(${parseInt(Math.random() * 256)}, ${parseInt(Math.random() * 256)}, ${parseInt(Math.random() * 256)})`;
-
+        
         return {
-          status: 'notReady', 
           connectionStatus: 'online',
           joinedAt: Firebase.ServerValue.TIMESTAMP, 
           activeAt: Firebase.ServerValue.TIMESTAMP,
           name,
-          color
         }
 
       }
@@ -177,37 +179,6 @@ function joinGame() {
           .set('offline');
       } else {
         failure(dispatch, event, error.code);
-      }
-    });
-  }
-}
-
-function toggleReady() {
-  return function(dispatch, getState) {
-
-    const event = 'toggleReady';
-    const uid = requireLogin(event, dispatch, getState);
-    const gameId = requireGame(event, dispatch, getState);
-
-    let status = 'unknown';
-
-    utils.connect('games')
-    .child(gameId)
-    .child('sessions')
-    .child(uid)
-    .child('status')
-    .transaction(statusData => {
-      if(statusData === 'ready') {
-        status = 'notReady';
-      } else {
-        status = 'ready';
-      }
-      return status;
-    }, error => {
-      if(!error) {
-        success(dispatch, event, status);
-      } else {
-        failure(dispatch, event, error.code)
       }
     });
   }
@@ -337,7 +308,6 @@ export default {
   endSyncGameData, 
   createGame, 
   joinGame, 
-  toggleReady, 
   startGame, 
   makeBet, 
   passBet,
