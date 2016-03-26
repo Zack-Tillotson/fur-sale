@@ -9,14 +9,22 @@ import Footer from '../Footer';
 
 const Page = React.createClass({
 
-  isPreferencesOpen() {
-    return this.props.location.pathname == '/preferences/';
+  propTypes: {
+    showHeader: React.PropTypes.bool
+  },
+
+  getDefaultProps() {
+    return {
+      showHeader: true,
+    }
   },
 
   render() {
     return (
       <InlineCss stylesheet={styles} componentName="component">
-        <Header preferencesOpen={this.isPreferencesOpen()}/>
+        {this.props.showHeader && (
+          <Header />
+        )}
         <Body>
           {this.props.children}
         </Body>

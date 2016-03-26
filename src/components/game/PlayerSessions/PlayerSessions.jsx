@@ -31,7 +31,7 @@ export default React.createClass({
           <form onSubmit={this.playerNameFormSubmitHandler}>
             <div className="editing">
               <input type="text" defaultValue={name} ref="playerNameInput" on />
-              <button className="saveButon">💾</button>
+              <button className="icon saveButon">💾</button>
             </div>
           </form>
         );
@@ -39,7 +39,7 @@ export default React.createClass({
         return (
           <div className="clickToEdit" onClick={this.toggleEditName}>
             {name}
-            <span className="editIcon">✎</span>
+            <span className="icon editIcon">✎</span>
           </div>
         );
       }

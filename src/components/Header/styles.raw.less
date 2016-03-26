@@ -16,53 +16,23 @@ component {
       }
     }
 
+    background: url('/assets/headline.png')no-repeat bottom center;
+    background-size: cover;
+
     h1 {
       display: inline-block;
       margin: 0;
       padding: 0;
-      font-size: 30px;
-      font-weight: 300;
       letter-spacing: 5px;
       text-shadow: 0 0 3px #000;
-      position: relative;
-      height: 80px;
-
-      .imageContainer {
-        display: inline-block;
-        background: #fff;        
-        border-radius: 150px;
-        position: absolute;
-        top: -15px;
-        z-index: 0;
-        text-align: center;
-        width: 120px;
-        height: 120px;
-
-        img {          
-          display: inline-block;
-          width: 100px;
-          height: 100px;
-          position: absolute;
-          top: 10px;
-          left: 10px;
-        }
-
-        &:hover {
-          background: #eee;
-        }
-      }
-
-      .title {
-        margin-left: 110px;
-        padding: 8px;
-      }
+      height: 35px;
+      line-height: 35px;
     }
   }
 
   .prefLink {
     float: right;
-    line-height: 80px;
-    font-size: 30px;
+    line-height: 30px;
 
     &:hover {
       color: #43AAFF;
@@ -73,18 +43,6 @@ component {
 @media (max-width: 600px) {
   container {
     header {
-      padding: 3px 5px;
-
-      h1 {
-        font-size: 17px;
-        padding: 0;
-
-        &:before {
-          margin-right: 10px;
-          width: 35px;
-          height: 18px;
-        } 
-      }
     }
   }
 }

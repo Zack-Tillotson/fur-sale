@@ -7,6 +7,7 @@ import fbSelector from '../../../firebase/selector';
 
 import styles from './styles';
 
+import Page from '../../Page';
 import LoginForm from '../../LoginForm';
 import PhaseTitle from '../PhaseTitle';
 import CardTable from '../CardTable';
@@ -49,62 +50,64 @@ const GameView = React.createClass({
 
   render() {
     return (
-      <InlineCss stylesheet={styles} componentName="component">
+      <Page>
+        <InlineCss stylesheet={styles} componentName="component">
 
-        {this.props.firebase.isLoggedIn && (
+          {this.props.firebase.isLoggedIn && (
 
-          <div className="gameContainer">
+            <div className="gameContainer">
 
-            <PhaseTitle 
-              phase={this.props.furSale.phase} />
+              <PhaseTitle 
+                phase={this.props.furSale.phase} />
 
-            {this.props.furSale.phase === 'pregame' && (
+              {this.props.furSale.phase === 'pregame' && (
 
-              <div className="pregame">
+                <div className="pregame">
 
-                <PlayerSessions 
-                  canJoinGame={this.props.furSale.canJoinGame}
-                  sessions={this.props.furSale.sessions} 
-                  updatePlayerName={this.props.updatePlayerName} />
+                  <PlayerSessions 
+                    canJoinGame={this.props.furSale.canJoinGame}
+                    sessions={this.props.furSale.sessions} 
+                    updatePlayerName={this.props.updatePlayerName} />
 
-                <PregameActions
-                  canStartGame={this.props.furSale.isGameOwner && this.props.furSale.readyToStart}
-                  playerCount={this.props.furSale.players.size}
-                  startGame={this.props.startGame} />                
+                  <PregameActions
+                    canStartGame={this.props.furSale.isGameOwner && this.props.furSale.readyToStart}
+                    playerCount={this.props.furSale.players.size}
+                    startGame={this.props.startGame} />                
 
-              </div>
+                </div>
 
-            )}
+              )}
 
-            {this.props.furSale.phase !== 'pregame' && (
+              {this.props.furSale.phase !== 'pregame' && (
 
-              <div className="inGame">
+                <div className="inGame">
 
-                <CardTable 
-                  visibleCardsGone={this.props.furSale.visibleCardsGone}
-                  visibleCards={this.props.furSale.visibleCards} />
+                  <CardTable 
+                    visibleCardsGone={this.props.furSale.visibleCardsGone}
+                    visibleCards={this.props.furSale.visibleCards} />
 
-                <PlayerList
-                  players={this.props.furSale.players} 
-                  passBet={this.props.passBet}
-                  makeBet={this.props.makeBet} />
+                  <PlayerList
+                    players={this.props.furSale.players} 
+                    passBet={this.props.passBet}
+                    makeBet={this.props.makeBet} />
 
-              </div>
+                </div>
 
-            )}
+              )}
 
-        </div>
+          </div>
 
-      )}
+        )}
 
-      {!this.props.firebase.isLoggedIn && (
-        <div className="loginGate">
-          <h1>Please log in before joining this game.</h1>
-          <LoginForm />
-        </div>
-      )}
+        {!this.props.firebase.isLoggedIn && (
+          <div className="loginGate">
+            <h1>Please log in before joining this game.</h1>
+            <LoginForm />
+          </div>
+        )}
 
-      </InlineCss>
+        </InlineCss>
+      </Page>
     );
   }
 });

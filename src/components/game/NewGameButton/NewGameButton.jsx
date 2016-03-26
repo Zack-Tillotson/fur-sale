@@ -27,7 +27,7 @@ const NewGameButton = React.createClass({
   render() {
 
     return (
-      <InlineCss stylesheet={styles} componentName="component">
+      <InlineCss stylesheet={styles} componentName="component" className="newGameButton">
 
         {!this.props.firebase.isLoggedIn && (
           <section>
