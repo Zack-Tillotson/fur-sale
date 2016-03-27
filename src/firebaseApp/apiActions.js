@@ -161,7 +161,7 @@ function joinGame() {
       } else {
 
         const {authInfo} = firebaseSelector(getState());
-        const name = authInfo[authInfo.provider].name || 'Anonymous Player';
+        const name = authInfo[authInfo.provider].displayName || 'Anonymous Player';
         
         return {
           connectionStatus: 'online',

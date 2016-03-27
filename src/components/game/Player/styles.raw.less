@@ -1,5 +1,30 @@
 component {
 
+  .animatedEllipses {
+
+    &:after {
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: bottom;
+      -webkit-animation: ellipsis steps(4,end) 900ms infinite;      
+      animation: ellipsis steps(4,end) 900ms infinite;
+      content: "\2026"; /* ascii code for the ellipsis character */
+      width: 0px;
+    }
+
+    @keyframes ellipsis {
+      to {
+        width: 1.25em;    
+      }
+    }
+
+    @-webkit-keyframes ellipsis {
+      to {
+        width: 1.25em;    
+      }
+    }
+  }
+
   display: inline-block;
   width: 250px;
   background: #fff;
@@ -17,6 +42,56 @@ component {
     overflow: hidden;
     text-overflow: clip;
     white-space: nowrap;
+  }
+
+  .controls {
+    display: flex;
+    margin: 3px 10px;
+
+    .bet, .plus, .minus, .pass {
+      border: solid 1px #ccc;
+      background: #fff;
+      text-align: center;
+      padding: 3px;
+      font-size: 16px;
+      border-radis: 3px;
+      margin: 2px;
+    }
+
+    .betContainer {
+      display: inline-block;
+      width: ~"calc(50% - 5px)";
+      margin-right: 5px;
+
+      .bet {
+        display: block;
+        width: 100%;
+      }
+
+      .plusMinus {
+        display: block;
+        width: 100%;
+        margin: 2px;
+      }
+
+      .plus, .minus {
+        margin: 0;
+        width: ~"calc(50% - 5px)"
+      }
+
+      .minus {
+        margin-right: 10px;
+      }
+    }
+
+    .passContainer {
+      display: inline-block;
+      width: ~"calc(50%)";
+
+      .pass {
+        width: 100%;
+      }
+    }
   }
 
 }

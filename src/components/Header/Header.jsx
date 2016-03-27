@@ -7,7 +7,13 @@ import {Link} from 'react-router';
 export default React.createClass({
 
   propTypes: {
-    preferencesOpen: React.PropTypes.bool.isRequired,
+    preferencesOpen: React.PropTypes.bool,
+  },
+
+  getDefaultProps() {
+    return {
+      preferencesOpen: false,
+    }
   },
 
   render() {

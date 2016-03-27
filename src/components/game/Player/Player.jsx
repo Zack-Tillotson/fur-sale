@@ -59,7 +59,7 @@ export default React.createClass({
     return (
       <InlineCss stylesheet={styles} componentName="component" className={`${isActiveClass} ${isSelfClass}`}>
         <div className="playerName">
-          Player: {player.get('name')}
+          {player.get('name')}
         </div>
         <div className="prevAction">
           {action}
@@ -68,20 +68,29 @@ export default React.createClass({
         <div className="money">
           ${player.get('money')}
         </div>
-        <div className="cardList">
-          {player.get('ownCards').map((card, index) => (
-            <Card key={index} size="small" value={card} />
-          ))}
-        </div>
         {player.get('isSelf') && (
           <div className="controls">
-            <button disabled={!player.get('isActive')} onClick={this.passClickHandler}>Pass</button>
-            <div>
-              <button disabled={!player.get('isActive')} onClick={this.lowerBid}>▼</button>
-              <span>{this.state.bidAmount}</span>
-              <button disabled={!player.get('isActive')} onClick={this.increaseBid}>▲</button>
-              <button disabled={!player.get('isActive')} onClick={this.betClickHandler}>Bet</button>
+            <div className="betContainer">
+              <button className="bet" disabled={!player.get('isActive')} onClick={this.betClickHandler}>Bet ${this.state.bidAmount}</button>
+              <div className="plusMinus">
+                <button className="minus" disabled={!player.get('isActive')} onClick={this.lowerBid}>-</button>
+                <button className="plus" disabled={!player.get('isActive')} onClick={this.increaseBid}>+</button>
+              </div>
             </div>
+            <div className="passContainer">
+              <button className="pass" disabled={!player.get('isActive')} onClick={this.passClickHandler}>Pass</button>
+            </div>
+          </div>
+        ) || player.get('isActive') && (
+        <div className="controls">
+          <span className="animatedEllipses">Thinking</span>
+        </div>
+        )}
+        {player.get('isSelf') && (
+          <div className="cardList">
+            {player.get('ownCards').map((card, index) => (
+              <Card key={index} size="small" value={card} />
+            ))}
           </div>
         )}
 
