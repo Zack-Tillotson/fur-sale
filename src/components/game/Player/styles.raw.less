@@ -1,6 +1,14 @@
 component {
 
   position: relative;
+  display: inline-block;
+  flex-grow: 1;
+  max-width: 400px;
+  min-width: 310px;
+  background: #fff;
+  box-shadow: 3px 3px 9px #ccc;
+  margin: 5px;
+  transition: background 1s linear;
 
   .animatedEllipses {
 
@@ -27,22 +35,17 @@ component {
     }
   }
 
-  display: inline-block;
-  width: 250px;
-  background: #fff;
-  box-shadow: 3px 3px 9px #ccc;
-  margin: 5px;
-
-  &.owner:before {
-    content: 'star';
-    position: absolute;
-    left: 0;
-    top: 5px;
-    color: 'yellow';
+  &.self.active {
+    background: lightblue;
   }
 
-  &.self {
-    background: lightgreen;
+  &.active {
+    box-shadow: 0 0 15px green;
+  }
+
+  &.passed {
+    background: #ccc;
+    color: #666;
   }
 
   .playerName {
@@ -102,6 +105,10 @@ component {
         width: 100%;
       }
     }
+  }
+
+  .prevAction {
+    height: 20px;
   }
 
   .playerStatus {

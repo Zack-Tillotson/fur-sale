@@ -82,11 +82,14 @@ const GameView = React.createClass({
 
                 <div className="inGame">
 
-                  <CardTable 
+                  <CardTable
+                    key={this.props.roundNum}
+                    phase={this.props.furSale.phase}
                     visibleCardsGone={this.props.furSale.visibleCardsGone}
                     visibleCards={this.props.furSale.visibleCards} />
 
                   <PlayerList
+                    phase={this.props.furSale.phase}
                     players={this.props.furSale.players} 
                     passBet={this.props.passBet}
                     makeBet={this.props.makeBet} />

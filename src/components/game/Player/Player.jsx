@@ -2,7 +2,7 @@ import React from 'react';
 import InlineCss from "react-inline-css";
 import styles from './styles.raw.less';
 
-import Card from '../Card';
+import CardTable from '../CardTable';
 
 export default React.createClass({
 
@@ -10,21 +10,18 @@ export default React.createClass({
     player: React.PropTypes.object.isRequired,
     passBet: React.PropTypes.func.isRequired,
     makeBet: React.PropTypes.func.isRequired,
+    phase: React.PropTypes.string.isRequired,
   },
 
   getInitialState() {
     return {
-      bidAmount: 1,
+      bidAmount: this.props.player.get('minBid'),
     }
   },
 
   componentWillReceiveProps(nextProps) {
-    const {bidAmount} = this.state;
-    if(bidAmount < nextProps.player.get('minBid')) {
+    if(!this.props.player.get('isActive') && nextProps.player.get('isActive')) {
       this.setState({bidAmount: nextProps.player.get('minBid')});
-    }
-    if(bidAmount > nextProps.player.get('maxBid')) {
-      this.setState({bidAmount: nextProps.player.get('maxBid')});
     }
   },
 
@@ -37,7 +34,7 @@ export default React.createClass({
   },
 
   increaseBid() {
-    if(this.props.player.get('money') > this.state.bidAmount) {
+    if(this.props.player.get('maxBid') > this.state.bidAmount) {
       this.setState({bidAmount:  this.state.bidAmount + 1});
     }
   },
@@ -52,31 +49,51 @@ export default React.createClass({
 
     const {player} = this.props;
 
+    const action = player.get('prevAction') !== 'noAction' && player.get('prevAction');
+
     const isActiveClass = player.get('isActive') ? 'active' : 'inactive';
     const isSelfClass = player.get('isSelf') ? 'self' : 'other';
     const isOwnerClass = player.get('isOwner') ? 'owner' : 'notOwner';
+    const isPassed = action === 'pass' ? 'passed' : 'notPassed';
 
-    const action = player.get('prevAction') !== 'noAction' && player.get('prevAction');
+    let actionText = '';
+    if(action === 'pass') {
+      actionText = 'Passes';
+    } else if(action === 'bet') {
+      actionText = 'Bids $' + player.get('currentBid');
+    }
 
     return (
-      <InlineCss stylesheet={styles} componentName="component" className={`${isActiveClass} ${isSelfClass} ${isOwnerClass}`}>
+      <InlineCss 
+        stylesheet={styles} 
+        componentName="component" 
+        className={`${isActiveClass} ${isSelfClass} ${isOwnerClass} ${isPassed}`}>
         <div className="playerName">
           {player.get('name')}
         </div>
         <div className="prevAction">
-          {action}
-          {player.get('currentBid') > 0 && player.get('currentBid')}
+          {actionText}
         </div>
         <div className="money">
           ${player.get('money')}
         </div>
-        {player.get('isSelf') && (
+        {player.get('isSelf') && this.props.phase === 'bid' && (
           <div className="controls">
             <div className="betContainer">
-              <button className="bet" disabled={!player.get('isActive')} onClick={this.betClickHandler}>Bet ${this.state.bidAmount}</button>
+              <button className="bet" disabled={!player.get('isActive')} onClick={this.betClickHandler}>Bid ${this.state.bidAmount}</button>
               <div className="plusMinus">
-                <button className="minus" disabled={!player.get('isActive')} onClick={this.lowerBid}>-</button>
-                <button className="plus" disabled={!player.get('isActive')} onClick={this.increaseBid}>+</button>
+                <button 
+                  className="minus" 
+                  disabled={!(player.get('isActive') && this.state.bidAmount > player.get('minBid'))} 
+                  onClick={this.lowerBid}>
+                    -
+                </button>
+                <button 
+                  className="plus" 
+                  disabled={!(player.get('isActive') && this.state.bidAmount < player.get('maxBid'))} 
+                  onClick={this.increaseBid}>
+                    +
+                 </button>
               </div>
             </div>
             <div className="passContainer">
@@ -94,9 +111,7 @@ export default React.createClass({
         )}
         {player.get('isSelf') && (
           <div className="cardList">
-            {player.get('ownCards').map((card, index) => (
-              <Card key={index} size="small" value={card} />
-            ))}
+            <CardTable phase={this.props.phase} small={true} visibleCards={player.get('ownCards')} visibleCardsGone={0} />
           </div>
         )}
 

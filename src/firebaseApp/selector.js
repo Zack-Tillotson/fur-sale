@@ -38,7 +38,11 @@ export default (state) => {
   const players = engine.get('players').map(player => {
 
     const isSelf = authInfo.uid == player.get('playerId');
-    const isActive = player.get('playerId') == activePlayerId;
+    const isActive = phase === 'buy' ? (
+      player.get('playerId') == activePlayerId
+    ) : (
+      player.get('currentBid') === 0
+    );
     const isOwner = player.get('playerId') === ownerId;
 
     let prevAction;
@@ -50,11 +54,14 @@ export default (state) => {
       prevAction = 'noAction';
     }
 
-    const money = player.get('money') - player.get('currentBid');
+    const money = phase === 'buy' ? player.get('money') - player.get('currentBid') : player.get('money');
     const maxBid = player.get('money');
 
-    const ownCards = player.get('buyCards').map(card => isSelf ? card : 0);
-    //TODO empty cards
+    let ownCards = player.get('buyCards').map(card => isSelf ? card : 0);
+    if(phase === 'sell') {
+      ownCards = ownCards.sort();
+    }
+
 
     return player.merge({
       isSelf, isActive, isOwner, prevAction, ownCards, money, minBid, maxBid
@@ -62,12 +69,14 @@ export default (state) => {
 
   });
 
+  const roundNum = parseInt(visibleCardsGone / sessions.size);
+
   // Meta information
   const isGameOwner = isLoggedIn && ownerId === authInfo.uid;
   const canJoinGame = isLoggedIn && !!game.get('gameId') && phase === 'pregame';
   const hasJoinedGame = isLoggedIn && sessions.find(session => session.get('playerId') === authInfo.uid && session.get('connectionStatus') !== 'offline');
   const readyToStart = isLoggedIn && phase === 'pregame' && sessions.size > 1 && sessions.size < 7;
 
-  return {game, phase, visibleCards, visibleCardsGone, deckCardCount, minBid, players, sessions, isGameOwner, canJoinGame, hasJoinedGame, readyToStart};
+  return {game, phase, roundNum,   visibleCards, visibleCardsGone, deckCardCount, minBid, players, sessions, isGameOwner, canJoinGame, hasJoinedGame, readyToStart};
   
 }

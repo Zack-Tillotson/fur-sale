@@ -43,12 +43,12 @@ function getInitialBuyPhaseState(seed, sessions) {
 
   const phase = 'buy';
   const currentPlayer = 0;
-  const visibleCards = cards.slice(0, players.length).sort();
-  const deckCards = cards.slice(players.length);
+  const visibleCards = cards.slice(0, players.size).sort();
+  const deckCards = cards.slice(players.size);
   const goneCardCount = 
-    players.length === 2 ? 10 :
-    players.length === 3 ? 6 :
-    players.length === 4 ? 2 :
+    players.size === 2 ? 10 :
+    players.size === 3 ? 6 :
+    players.size === 4 ? 2 :
     0;
 
   const rngUse = rng.getUseCount();
