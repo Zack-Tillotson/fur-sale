@@ -1,5 +1,7 @@
 component {
 
+  position: relative;
+
   .animatedEllipses {
 
     &:after {
@@ -31,7 +33,15 @@ component {
   box-shadow: 3px 3px 9px #ccc;
   margin: 5px;
 
-  &.active {
+  &.owner:before {
+    content: 'star';
+    position: absolute;
+    left: 0;
+    top: 5px;
+    color: 'yellow';
+  }
+
+  &.self {
     background: lightgreen;
   }
 
@@ -91,6 +101,34 @@ component {
       .pass {
         width: 100%;
       }
+    }
+  }
+
+  .playerStatus {
+    text-align: left;
+    padding: 3px 5px;
+
+    .offline {
+      color: #999;
+    }
+  }
+
+  .playerMarker {
+
+    &:before {
+      position: absolute;
+      top: 7px;
+      left: 0px;
+      content: '▶';
+      color: #fff;
+    }
+
+    &:after {
+      position: absolute;
+      top: 7px;
+      right: 0px;
+      content: '◀';
+      color: #fff;
     }
   }
 

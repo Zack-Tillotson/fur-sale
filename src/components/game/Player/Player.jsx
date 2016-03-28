@@ -14,16 +14,17 @@ export default React.createClass({
 
   getInitialState() {
     return {
-      bidAmount: 0,
+      bidAmount: 1,
     }
   },
 
   componentWillReceiveProps(nextProps) {
     const {bidAmount} = this.state;
+    if(bidAmount < nextProps.player.get('minBid')) {
+      this.setState({bidAmount: nextProps.player.get('minBid')});
+    }
     if(bidAmount > nextProps.player.get('maxBid')) {
       this.setState({bidAmount: nextProps.player.get('maxBid')});
-    } else if(bidAmount < nextProps.player.get('minBid')) {
-      this.setState({bidAmount: nextProps.player.get('minBid')});
     }
   },
 
@@ -53,11 +54,12 @@ export default React.createClass({
 
     const isActiveClass = player.get('isActive') ? 'active' : 'inactive';
     const isSelfClass = player.get('isSelf') ? 'self' : 'other';
+    const isOwnerClass = player.get('isOwner') ? 'owner' : 'notOwner';
 
     const action = player.get('prevAction') !== 'noAction' && player.get('prevAction');
 
     return (
-      <InlineCss stylesheet={styles} componentName="component" className={`${isActiveClass} ${isSelfClass}`}>
+      <InlineCss stylesheet={styles} componentName="component" className={`${isActiveClass} ${isSelfClass} ${isOwnerClass}`}>
         <div className="playerName">
           {player.get('name')}
         </div>
@@ -82,9 +84,13 @@ export default React.createClass({
             </div>
           </div>
         ) || player.get('isActive') && (
-        <div className="controls">
-          <span className="animatedEllipses">Thinking</span>
-        </div>
+          <div className="playerStatus">
+            {player.get('connectionStatus') === 'online' && (
+              <span className="animatedEllipses">Thinking</span>
+            ) || (
+              <span className="offline">offline</span>
+            )}
+          </div>
         )}
         {player.get('isSelf') && (
           <div className="cardList">
@@ -94,6 +100,9 @@ export default React.createClass({
           </div>
         )}
 
+        {player.get('isActive') && (
+          <div className="playerMarker"></div>
+        )}
       </InlineCss>
     );
   }

@@ -50,12 +50,17 @@ function beginSyncGameData(gameId) {
     return  new Promise((resolve, reject) => {
       if(uid) {
 
+        let eventSuccessful = false;
+
         utils.connect('games')
           .child(gameId)
           .on('value', snapshot => {
-            success(dispatch, event, snapshot.key());
+            if(!eventSuccessful) {
+              success(dispatch, event, snapshot.key());
+              eventSuccessful = true;
+              dispatch(touchSession());
+            }
             dispatch(actions.dataReceived(snapshot.val()));
-            dispatch(touchSession());
             resolve();
           });
       } else {
@@ -149,6 +154,10 @@ function joinGame() {
 
     ref.transaction(value => {
 
+      ref.child('connectionStatus')
+        .onDisconnect()
+        .set('offline');
+
       // If so just update their activity time
       if(!!value) {
 
@@ -174,9 +183,6 @@ function joinGame() {
     }, error => {
       if(!error) {
         success(dispatch, event, gameId);
-        ref.child('connectionStatus')
-          .onDisconnect()
-          .set('offline');
       } else {
         failure(dispatch, event, error.code);
       }

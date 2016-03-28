@@ -18,12 +18,15 @@ export default (state) => {
     ? engine.get('players').sort((a, b) => b.get('currentBid') - a.get('currentBid')).first().get('currentBid') + 1
     : 0;
 
-    // Sessions
+  // Sessions
+  const ownerId = game.getIn(['upstream', 'owner']);
+
   const sessions = game.get('sessions').map(session => {
     const isSelf = authInfo.uid == session.get('playerId');
+    const isOwner = session.get('playerId') === ownerId;
 
     return session.merge({
-      isSelf
+      isSelf, isOwner
     });
   });
 
@@ -31,10 +34,12 @@ export default (state) => {
   const activePlayerId = phase == 'buy'
     ? engine.getIn(['players', engine.get('currentPlayer')]).get('playerId')
     : '';
+
   const players = engine.get('players').map(player => {
 
     const isSelf = authInfo.uid == player.get('playerId');
     const isActive = player.get('playerId') == activePlayerId;
+    const isOwner = player.get('playerId') === ownerId;
 
     let prevAction;
     if(player.get('hasPassed')) {
@@ -52,13 +57,13 @@ export default (state) => {
     //TODO empty cards
 
     return player.merge({
-      isSelf, isActive, prevAction, ownCards, money, minBid, maxBid
+      isSelf, isActive, isOwner, prevAction, ownCards, money, minBid, maxBid
     });
 
   });
 
   // Meta information
-  const isGameOwner = isLoggedIn && game.getIn(['upstream', 'owner']) === authInfo.uid;
+  const isGameOwner = isLoggedIn && ownerId === authInfo.uid;
   const canJoinGame = isLoggedIn && !!game.get('gameId') && phase === 'pregame';
   const hasJoinedGame = isLoggedIn && sessions.find(session => session.get('playerId') === authInfo.uid && session.get('connectionStatus') !== 'offline');
   const readyToStart = isLoggedIn && phase === 'pregame' && sessions.size > 1 && sessions.size < 7;

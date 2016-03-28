@@ -69,7 +69,7 @@ export default React.createClass({
     for(let i = 0 ; i < placeHolderCount ; i++) {
       ret.push(
         <tr key={'placeholder ' + i}>
-          <td colSpan={2} className="placeholder">
+          <td colSpan={3} className="placeholder">
             Empty
           </td>
         </tr>
@@ -88,6 +88,7 @@ export default React.createClass({
         <table className="sessionTable">
           <thead>
             <tr>
+              <td className="isOwner"></td>
               <td className="playerName">Name</td>
               <td className="connectionStatus"></td>
             </tr>
@@ -95,11 +96,13 @@ export default React.createClass({
           <tbody>
             {sessions.map(session => {
 
+              const isOwnerClass = session.get('isOwner') ? 'owner' : 'notOwner';
               const selfClass = session.get('isSelf') ? 'isSelf' : 'notSelf';
               const connectionClass = session.get('connectionStatus');
 
               return (
-                <tr key={session.get('playerId')} className={selfClass}>
+                <tr key={session.get('playerId')} className={`${selfClass}`}>
+                  <td className={isOwnerClass}></td>
                   <td className="playerName">
                     {this.getPlayerName(session)}
                   </td>
