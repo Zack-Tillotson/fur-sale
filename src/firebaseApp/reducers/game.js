@@ -40,7 +40,7 @@ export default function syncronizeGameState(state, newState) {
   let gameState = newState.get('engine');
 
   // No game yet :]
-  if(newState.getIn(['upstream', 'gameMode']) !== 'playing') {
+  if(newState.getIn(['upstream', 'gameMode']) === 'pregame') {
     return gameState;
   }
 

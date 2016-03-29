@@ -78,7 +78,7 @@ const GameView = React.createClass({
 
               )}
 
-              {this.props.furSale.phase !== 'pregame' && (
+              {this.props.furSale.phase !== 'pregame' && this.props.furSale.phase !== 'postgame' && (
 
                 <div className="inGame">
 
@@ -92,11 +92,22 @@ const GameView = React.createClass({
                     phase={this.props.furSale.phase}
                     players={this.props.furSale.players} 
                     passBet={this.props.passBet}
-                    makeBet={this.props.makeBet} />
+                    makeBet={this.props.makeBet}
+                    sellCard={this.props.sellCard} />
 
                 </div>
 
               )}
+
+              {this.props.furSale.phase === 'postgame' && this.props.furSale.players.map(player => (
+                <div>
+                  {player.get('name')}: ${player.get('money') + player.get('sellCards').reduce((soFar, val) => soFar + val, 0)}
+                  <br />
+                  Money ${player.get('money')}, Cards {player.get('sellCards').map(val => (
+                    <span>${val} </span>))}
+                  <hr />
+                </div>
+              ))}
 
           </div>
 

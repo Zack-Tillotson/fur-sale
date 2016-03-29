@@ -10,6 +10,7 @@ export default React.createClass({
     players: React.PropTypes.object.isRequired,
     passBet: React.PropTypes.func.isRequired,
     makeBet: React.PropTypes.func.isRequired,
+    sellCard: React.PropTypes.func.isRequired,
     phase: React.PropTypes.string.isRequired,
   },
 
@@ -17,7 +18,7 @@ export default React.createClass({
     return (
       <InlineCss stylesheet={styles} componentName="component">
         {this.props.players.map((player, index) => (
-          <Player key={index} phase={this.props.phase} player={player} passBet={this.props.passBet} makeBet={this.props.makeBet} />
+          <Player key={index} {...this.props} player={player} />
         ))}
       </InlineCss>
     );

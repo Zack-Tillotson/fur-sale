@@ -31,7 +31,7 @@ export default (state) => {
   });
 
   // Players
-  const activePlayerId = phase == 'buy'
+  const activePlayerId = phase === 'buy'
     ? engine.getIn(['players', engine.get('currentPlayer')]).get('playerId')
     : '';
 
@@ -41,7 +41,7 @@ export default (state) => {
     const isActive = phase === 'buy' ? (
       player.get('playerId') == activePlayerId
     ) : (
-      player.get('currentBid') === 0
+      player.get('currentOffer') === 0
     );
     const isOwner = player.get('playerId') === ownerId;
 

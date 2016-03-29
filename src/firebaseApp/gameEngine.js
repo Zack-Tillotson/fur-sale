@@ -6,6 +6,7 @@ import util from './util';
 
 const INITIAL_PLAYER_MONEY = 14;
 const DECK_SIZE = 30;
+const GONE_CARD_COUNTS = {2: 24, 3: 6, 4: 0, 5: 0};
 
 // State shape:
 // {
@@ -43,17 +44,13 @@ function getInitialBuyPhaseState(seed, sessions) {
 
   const phase = 'buy';
   const currentPlayer = 0;
-  const visibleCards = cards.slice(0, players.size).sort();
-  const deckCards = cards.slice(players.size);
-  const goneCardCount = 
-    players.size === 2 ? 10 :
-    players.size === 3 ? 6 :
-    players.size === 4 ? 2 :
-    0;
+  const visibleCards = cards.slice(0, players.length).sort();
+  const deckCards = cards.slice(players.length);
+  const goneCardCount = GONE_CARD_COUNTS[players.length] || 0;
 
   const rngUse = rng.getUseCount();
 
-  return Immutable.fromJS({
+  const state = Immutable.fromJS({
     phase, 
     table: {deckCards, visibleCards, goneCardCount}, 
     players, 
@@ -61,19 +58,24 @@ function getInitialBuyPhaseState(seed, sessions) {
     rngUse,
   });
   
+  console.log("Initial buy state: ", state.toJS());
+
+  return state;
 }
 
 function getInitialSellPhaseState(state, rng) {
 
   const players = state.get('players').map(player => {
-    return Immutable.fromJS({
-      playerId: player.get('playerId'),
-      money: player.get('money'),
-      buyCards: player.get('buyCards').toJS(),
+    return player.merge({
       usedBuyCards: [],
       sellCards: [],
       currentOffer: 0,
-    });
+    })
+    .remove('currentBid')
+    .remove('hasPassed')
+    .remove('maxBid')
+    .remove('minBid')
+    .remove('prevAction');
   });
 
   const cardsAry = [];
@@ -90,17 +92,17 @@ function getInitialSellPhaseState(state, rng) {
   const phase = 'sell';
   const visibleCards = cards.take(players.size).sort();
   const deckCards = cards.skip(players.size);
-  const goneCardCount = 
-    players.length === 2 ? 10 :
-    players.length === 3 ? 6 :
-    players.length === 4 ? 2 :
-    0;
+  const goneCardCount = GONE_CARD_COUNTS[players.size] || 0;
 
-  return state.merge({
+  state = state.merge({
     phase,
     table: Immutable.Map({deckCards, visibleCards, goneCardCount}),
     players, 
   });
+
+  console.log("Initial sell state: ", state.toJS());
+
+  return state;
 
 }
 

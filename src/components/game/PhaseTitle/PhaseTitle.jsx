@@ -16,6 +16,8 @@ export default React.createClass({
         return 'Buy Phase';
       case 'sell':
         return 'Sell Phase';
+      case 'postgame':
+        return 'Game Over!';
     }
   },
 

@@ -10,6 +10,7 @@ export default React.createClass({
     player: React.PropTypes.object.isRequired,
     passBet: React.PropTypes.func.isRequired,
     makeBet: React.PropTypes.func.isRequired,
+    sellCard: React.PropTypes.func.isRequired,
     phase: React.PropTypes.string.isRequired,
   },
 
@@ -45,6 +46,10 @@ export default React.createClass({
     }
   },
 
+  cardClickHandler(value) {
+    this.props.sellCard(value);
+  },
+
   render() {
 
     const {player} = this.props;
@@ -77,7 +82,7 @@ export default React.createClass({
         <div className="money">
           ${player.get('money')}
         </div>
-        {player.get('isSelf') && this.props.phase === 'bid' && (
+        {player.get('isSelf') && this.props.phase === 'buy' && (
           <div className="controls">
             <div className="betContainer">
               <button className="bet" disabled={!player.get('isActive')} onClick={this.betClickHandler}>Bid ${this.state.bidAmount}</button>
@@ -111,7 +116,7 @@ export default React.createClass({
         )}
         {player.get('isSelf') && (
           <div className="cardList">
-            <CardTable phase={this.props.phase} small={true} visibleCards={player.get('ownCards')} visibleCardsGone={0} />
+            <CardTable phase={this.props.phase} small={true} visibleCards={player.get('ownCards')} visibleCardsGone={0} cardClickHandler={this.cardClickHandler} />
           </div>
         )}
 
