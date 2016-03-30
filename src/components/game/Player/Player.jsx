@@ -116,7 +116,13 @@ export default React.createClass({
         )}
         {player.get('isSelf') && (
           <div className="cardList">
-            <CardTable phase={this.props.phase} small={true} visibleCards={player.get('ownCards')} visibleCardsGone={0} cardClickHandler={this.cardClickHandler} />
+            <CardTable phase="buy" size="small" visibleCards={player.get('ownCards')} visibleCardsGone={0} cardClickHandler={this.cardClickHandler} />
+          </div>
+        )}
+
+        {player.get('isSelf') && this.props.phase === 'sell' && (
+          <div className="cardList">
+            <CardTable phase="sell" size="small" visibleCards={player.get('sellCards')} visibleCardsGone={0} />
           </div>
         )}
 

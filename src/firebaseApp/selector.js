@@ -14,10 +14,7 @@ export default (state) => {
   const visibleCards = engine.getIn(['table', 'visibleCards']);
   const visibleCardsGone = engine.get('players').size - visibleCards.size;
   const deckCardCount = engine.getIn(['table', 'deckCards']).size - engine.getIn(['table', 'goneCardCount']);
-  const minBid = phase == 'buy'
-    ? engine.get('players').sort((a, b) => b.get('currentBid') - a.get('currentBid')).first().get('currentBid') + 1
-    : 0;
-
+  
   // Sessions
   const ownerId = game.getIn(['upstream', 'owner']);
 
@@ -31,45 +28,77 @@ export default (state) => {
   });
 
   // Players
-  const activePlayerId = phase === 'buy'
-    ? engine.getIn(['players', engine.get('currentPlayer')]).get('playerId')
-    : '';
+  let players;
+  let roundNum = 1;
+  if(phase === 'buy') {
 
-  const players = engine.get('players').map(player => {
+    const activePlayerId = engine.getIn(['players', engine.get('currentPlayer')]).get('playerId');
+    const minBid = engine.get('players').sort((a, b) => b.get('currentBid') - a.get('currentBid')).first().get('currentBid') + 1;
 
-    const isSelf = authInfo.uid == player.get('playerId');
-    const isActive = phase === 'buy' ? (
-      player.get('playerId') == activePlayerId
-    ) : (
-      player.get('currentOffer') === 0
-    );
-    const isOwner = player.get('playerId') === ownerId;
+    players = engine.get('players').map(player => {
 
-    let prevAction;
-    if(player.get('hasPassed')) {
-      prevAction = 'pass';
-    } else if(player.get('currentBid') > 0) {
-      prevAction = 'bet';
-    } else {
-      prevAction = 'noAction';
-    }
+      const isSelf = authInfo.uid == player.get('playerId');
+      const isActive = player.get('playerId') == activePlayerId;
+      const isOwner = player.get('playerId') === ownerId;
 
-    const money = phase === 'buy' ? player.get('money') - player.get('currentBid') : player.get('money');
-    const maxBid = player.get('money');
+      let prevAction;
+      if(player.get('hasPassed')) {
+        prevAction = 'pass';
+      } else if(player.get('currentBid') > 0) {
+        prevAction = 'bet';
+      } else {
+        prevAction = 'noAction';
+      }
 
-    let ownCards = player.get('buyCards').map(card => isSelf ? card : 0);
-    if(phase === 'sell') {
-      ownCards = ownCards.sort();
-    }
+      const money = player.get('money') - player.get('currentBid');
+      const maxBid = player.get('money');
 
+      const ownCards = player.get('buyCards').map(card => isSelf ? card : 0);
+      roundNum = 1 + ownCards.size;
+      
+      return player.merge({
+        isSelf, isActive, isOwner, prevAction, ownCards, money, minBid, maxBid
+      });
 
-    return player.merge({
-      isSelf, isActive, isOwner, prevAction, ownCards, money, minBid, maxBid
     });
 
-  });
 
-  const roundNum = parseInt(visibleCardsGone / sessions.size);
+  } else if(phase === 'sell') {
+
+    players = engine.get('players').map(player => {
+
+      const isSelf = authInfo.uid == player.get('playerId');
+      const isActive = player.get('currentOffer') === 0;
+      const isOwner = player.get('playerId') === ownerId;
+
+      const money = player.get('money');
+
+      let ownCards = player.get('buyCards').map(card => isSelf ? card : 0).sort();
+      
+      return player.merge({
+        isSelf, isActive, isOwner, ownCards, money
+      });
+
+    });
+
+  } else {
+
+    players = engine.get('players').map(player => {
+
+      const isSelf = authInfo.uid == player.get('playerId');
+      const isActive = player.get('currentOffer') === 0;
+      const isOwner = player.get('playerId') === ownerId;
+
+      const money = player.get('money');
+
+      let ownCards = player.get('buyCards').map(card => isSelf ? card : 0).sort();
+      
+      return player.merge({
+        isSelf, isActive, isOwner, ownCards, money
+      });
+
+    });
+  }
 
   // Meta information
   const isGameOwner = isLoggedIn && ownerId === authInfo.uid;
@@ -77,6 +106,20 @@ export default (state) => {
   const hasJoinedGame = isLoggedIn && sessions.find(session => session.get('playerId') === authInfo.uid && session.get('connectionStatus') !== 'offline');
   const readyToStart = isLoggedIn && phase === 'pregame' && sessions.size > 1 && sessions.size < 7;
 
-  return {game, phase, roundNum,   visibleCards, visibleCardsGone, deckCardCount, minBid, players, sessions, isGameOwner, canJoinGame, hasJoinedGame, readyToStart};
+  return {
+    game,
+    phase,
+    roundNum,
+    visibleCards,
+    visibleCardsGone,
+    deckCardCount,
+    players,
+    roundNum,
+    sessions,
+    isGameOwner,
+    canJoinGame,
+    hasJoinedGame,
+    readyToStart
+  };
   
 }

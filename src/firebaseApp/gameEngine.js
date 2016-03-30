@@ -58,8 +58,6 @@ function getInitialBuyPhaseState(seed, sessions) {
     rngUse,
   });
   
-  console.log("Initial buy state: ", state.toJS());
-
   return state;
 }
 
@@ -99,8 +97,6 @@ function getInitialSellPhaseState(state, rng) {
     table: Immutable.Map({deckCards, visibleCards, goneCardCount}),
     players, 
   });
-
-  console.log("Initial sell state: ", state.toJS());
 
   return state;
 

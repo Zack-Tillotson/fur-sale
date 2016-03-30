@@ -25,10 +25,11 @@ const HowToPlay = React.createClass({
         </section>
         <section>
           <h4>Buy Phase</h4>
-          <p></p>
+          <p>Take turns bidding on the shown cards. The first player to <b>pass</b> gets the lowest card left and half (rounded down) of any outstanding bids. The player who wins the bid gets the highest card but does not get a refund on his bid.</p>
         </section>
         <section>
           <h4>Sell Phase</h4>
+          <p>Each round players secretly choose one of the cards they acquired in the Buy Phase to sell. When all players have chosen all cards are revealed, players receive the payment according to who revealed the highest valued cards.</p>
         </section>
       </InlineCss>
     );

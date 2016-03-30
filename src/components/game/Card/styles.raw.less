@@ -1,0 +1,53 @@
+component {
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: top;
+  height: 75px;
+  margin: 5px 0;
+  overflow: hidden;
+  border-bottom: solid 2px #ccc;
+
+  &:after {
+    content: ' ';
+    display: inline-block;
+    width: 50px;
+    height: 25px;
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+  }
+
+  &.buy {
+    background: #0D3D65;
+    color: #fff;
+
+    &:after {
+      background: url('/assets/peeking.png') no-repeat;
+      background-size: contain;
+    }
+  }
+
+  &.sell {
+    background: darkgreen;
+    color: #fff;
+
+    &:after {
+      background: url('/assets/luckycat.png') no-repeat;
+      background-size: contain;
+    }
+  }
+
+  &.small:after {
+    width: 25px;
+    bottom: -12px;
+  }
+}
+
+@media (max-width: 600px) {
+  component {
+
+  }
+}

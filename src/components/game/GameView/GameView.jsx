@@ -85,6 +85,7 @@ const GameView = React.createClass({
                   <CardTable
                     key={this.props.roundNum}
                     phase={this.props.furSale.phase}
+                    roundNum={this.props.furSale.roundNum}
                     visibleCardsGone={this.props.furSale.visibleCardsGone}
                     visibleCards={this.props.furSale.visibleCards} />
 
