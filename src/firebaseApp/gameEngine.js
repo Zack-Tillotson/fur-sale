@@ -19,6 +19,7 @@ const GONE_CARD_COUNTS = {2: 24, 3: 6, 4: 0, 5: 0};
 //   players: [], // Maps to the sessions, {playerId, money, buyCards, sellCards, currentBid, currentOffer}
 //   currentPlayer: 0,
 //   rngUse: 0, // The number of times the RNG has been used since seeding
+//   diffs: [], // Important differences in game states (when players make bids or take cards)
 // }
 
 function getInitialBuyPhaseState(seed, sessions) {
@@ -56,6 +57,9 @@ function getInitialBuyPhaseState(seed, sessions) {
     players, 
     currentPlayer,
     rngUse,
+    diffs: [{
+      action: 'buyPhaseStarts',
+    }],
   });
   
   return state;
@@ -92,10 +96,15 @@ function getInitialSellPhaseState(state, rng) {
   const deckCards = cards.skip(players.size);
   const goneCardCount = GONE_CARD_COUNTS[players.size] || 0;
 
+  const diffs = state.get('diffs').push({
+    action: 'sellPhaseStarts',
+  });
+
   state = state.merge({
     phase,
     table: Immutable.Map({deckCards, visibleCards, goneCardCount}),
-    players, 
+    players,
+    diffs,
   });
 
   return state;
@@ -132,6 +141,13 @@ function applyBuyDecisionToRaise(decision, state) {
   let nextPlayer = findNextPlayers(state)[0];
   state = state.set('currentPlayer', nextPlayer);
 
+  state = state.updateIn(['diffs'], diffs => diffs.push({
+    action: 'bid',
+    player: currentPlayer,
+    nextPlayer,
+    bid,
+  }));
+
   return state;
 
 }
@@ -159,11 +175,19 @@ function cashOutBid(state, playerIndex, bidLost) {
 function applyBuyDecisionToPass(rng, decision, state) {
 
   const currentPlayer = state.get('currentPlayer');
-  const currentBidLost = Math.ceil(state.getIn(['players', currentPlayer, 'currentBid']) / 2);
+  const currentBid = state.getIn(['players', currentPlayer, 'currentBid']);
+  const currentBidLost = Math.ceil(currentBid / 2);
   state = cashOutBid(state, currentPlayer, currentBidLost);
 
   const activeBidders = findNextPlayers(state);
   state = state.set('currentPlayer', activeBidders[0]);
+
+  let effects = [{
+    player: currentPlayer,
+    reclaims: currentBid - currentBidLost,
+    pays: currentBidLost,
+    card: state.getIn(['players', currentPlayer, 'buyCards']).last(),
+  }];
   
   if(activeBidders.length === 1) { // Round over!
     
@@ -173,6 +197,19 @@ function applyBuyDecisionToPass(rng, decision, state) {
 
     const cardsInDeck = state.getIn(['table', 'deckCards']).size - state.getIn(['table', 'goneCardCount']);
     const playerCount = state.get('players').size;
+
+    effects.push({
+      player: winningPlayer,
+      reclaims: 0,
+      pays: winningBid,
+      card: state.getIn(['players', winningPlayer, 'buyCards']).last(),
+    });
+
+    state = state.updateIn(['diffs'], diffs => diffs.push({
+      action: 'pass',
+      player: currentPlayer,
+      effects
+    }));
 
     if(cardsInDeck > 0) { // Still have cards to buy?
 
@@ -214,6 +251,8 @@ function applySellDecision(decision, state) {
 
   if(allPlayersIn) {
 
+    const effects = [];
+
     // Move visible cards to players according to their offered card
     while(state.hasIn(['table', 'visibleCards', 0])) {
       const cardToGive = state.getIn(['table', 'visibleCards']).last();
@@ -223,7 +262,7 @@ function applySellDecision(decision, state) {
         .last()
         .get('currentOffer');
       state = state.updateIn(['table', 'visibleCards'], cards => cards.skipLast(1));
-      state = state.updateIn(['players'], players => players.map(player => {
+      state = state.updateIn(['players'], (players, index) => players.map((player, index) => {
         if(player.get('currentOffer') == highBid) {
           player = player.merge({
             currentOffer: 0,
@@ -231,10 +270,20 @@ function applySellDecision(decision, state) {
             buyCards: player.get('buyCards').filter(card => card != highBid),
             usedBuyCards: player.get('usedBuyCards').push(highBid),
           });
+          effects.push({
+            player: index,
+            buyCard: highBid,
+            sellCard: cardToGive,
+          });
         }
         return player;
       }));
     }
+
+    state = state.updateIn(['diffs'], diffs => diffs.push({
+      action: 'sell',
+      effects,
+    }));
 
     const cardsInDeck = state.getIn(['table', 'deckCards']).size - state.getIn(['table', 'goneCardCount']);
     const playerCount = state.get('players').size;
@@ -247,6 +296,9 @@ function applySellDecision(decision, state) {
       });
     } else {
       state = state.set('phase', 'postgame');
+      state = state.updateIn(['diffs'], diffs => diffs.push({
+        action: 'gameover',
+      }));
     }
 
   }

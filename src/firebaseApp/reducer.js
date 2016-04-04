@@ -6,6 +6,8 @@ import gameReducer from './reducers/game';
 import upstreamReducer from './reducers/upstream';
 import sessionReducer from './reducers/sessions';
 
+import util from './util';
+
 const defaultState = Immutable.fromJS({
 
   // From our successful 'joinGame' action
@@ -31,7 +33,41 @@ const defaultState = Immutable.fromJS({
       visibleCards: [], // The visible cards on the table
     },
     players: [], // Maps to the sessions, {playerId, money, cards}
-    currentPlayer: ''
+    currentPlayer: '',
+    // List of important (note-worthy) changes between states. Not all decisions
+    // will generate a new diff
+    // e.g. basic decision {
+    //   player: 0,
+    //   action: 'bid',
+    //   value: 3
+    // }
+    // e.g. pass {
+    //   player: 3,
+    //   action: 'pass',
+    //   effects: [{
+    //     player: 3,
+    //     pays: 3,
+    //     reclaims: 2,
+    //     card: 13
+    //   }, {
+    //     player: 1,
+    //     pays: 5,
+    //     reclaims: 0,
+    //     card: 21
+    //   }]
+    // e.g. sell decision {
+    //   action: 'sell',
+    //   effects: [{
+    //     player: 3,
+    //     buyCard: 23
+    //     sellCard: 14
+    //   }, {
+    //     player: 1,
+    //     buyCard: 13 
+    //     sellCard: 3
+    //   }]
+    // }
+    diffs: [],
   },
 
   sessions: [],

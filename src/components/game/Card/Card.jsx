@@ -33,6 +33,7 @@ export default React.createClass({
         componentName="component"
         className={`card ${size} value${value} ${takenClass} ${this.props.type}`} 
         onClick={this.cardClickHandler}>
+          {this.props.type === 'sell' && '$'}
           {value >= 0 && value}
       </InlineCss>
     );
