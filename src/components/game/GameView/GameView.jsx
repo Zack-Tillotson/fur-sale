@@ -107,15 +107,20 @@ const GameView = React.createClass({
 
               )}
 
-              {this.props.furSale.phase === 'postgame' && this.props.furSale.players.map(player => (
+              {this.props.furSale.phase === 'postgame' && (
                 <div>
-                  {player.get('name')}: ${player.get('money') + player.get('sellCards').reduce((soFar, val) => soFar + val, 0)}
-                  <br />
-                  Money ${player.get('money')}, Cards {player.get('sellCards').map(val => (
-                    <span>${val} </span>))}
-                  <hr />
+                  <History history={this.props.furSale.history} />
+                  {this.props.furSale.players.map(player => (
+                    <div>
+                      {player.get('name')}: ${player.get('money') + player.get('sellCards').reduce((soFar, val) => soFar + val, 0)}
+                      <br />
+                      Money ${player.get('money')}, Cards {player.get('sellCards').map(val => (
+                        <span>${val} </span>))}
+                      <hr />
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
 
           </div>
 

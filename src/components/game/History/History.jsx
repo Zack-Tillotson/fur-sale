@@ -36,34 +36,32 @@ const History = React.createClass({
     switch(item.get('action')) {
       case 'buyPhaseStarts':
         return (
-          <div className="historyItem buyStart" {...hoverControls}>
-            Buy Starts
-          </div>
+          <div className="historyItem buyStart" {...hoverControls}>&nbsp;</div>
         );
       case 'bid':
         return (
           <div className="historyItem bid" {...hoverControls}>
-            Bids ${item.get('bid')}
+            ${item.get('bid')}
           </div>
         );
       case 'pass':
         const endOfBiddingClass = item.get('endOfRound') ? 'endOfRound' : 'midRound';
         return (
           <div className={`historyItem pass ${endOfBiddingClass}`} {...hoverControls}>
-            Pass
+            &nbsp;
           </div>
         );
       case 'sellPhaseStarts':
         return (
-          <div className="historyItem sellStart" {...hoverControls}>
-            Sell Starts
-          </div>
+          <div className="historyItem sellStart" {...hoverControls}>&nbsp;</div>
         );
       case 'sell':
         return (
-          <div className="historyItem sell" {...hoverControls}>
-            Sale
-          </div>
+          <div className="historyItem sell" {...hoverControls}>&nbsp;</div>
+        );
+      case 'gameover':
+        return (
+          <div className="historyItem gameOver" {...hoverControls}>&nbsp;</div>
         );
       default:
         return (
@@ -120,7 +118,7 @@ const History = React.createClass({
     return (
       <InlineCss stylesheet={styles} componentName="component" className="history">
         <div className="historyItems">
-          {this.props.history.reverse().take(15).map(this.getHistoryItem)}
+          {this.props.history.reverse().take(10).map(this.getHistoryItem)}
         </div>
         {this.state.hoveredItem && this.getHistoryItemDetail()}
       </InlineCss>
