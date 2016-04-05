@@ -96,9 +96,9 @@ function getInitialSellPhaseState(state, rng) {
   const deckCards = cards.skip(players.size);
   const goneCardCount = GONE_CARD_COUNTS[players.size] || 0;
 
-  const diffs = state.get('diffs').push({
+  const diffs = state.get('diffs').push(Immutable.fromJS({
     action: 'sellPhaseStarts',
-  });
+  }));
 
   state = state.merge({
     phase,
@@ -141,12 +141,12 @@ function applyBuyDecisionToRaise(decision, state) {
   let nextPlayer = findNextPlayers(state)[0];
   state = state.set('currentPlayer', nextPlayer);
 
-  state = state.updateIn(['diffs'], diffs => diffs.push({
+  state = state.updateIn(['diffs'], diffs => diffs.push(Immutable.fromJS({
     action: 'bid',
     player: currentPlayer,
     nextPlayer,
     bid,
-  }));
+  })));
 
   return state;
 
@@ -179,24 +179,22 @@ function applyBuyDecisionToPass(rng, decision, state) {
   const currentBidLost = Math.ceil(currentBid / 2);
   state = cashOutBid(state, currentPlayer, currentBidLost);
 
-  const activeBidders = findNextPlayers(state);
-  state = state.set('currentPlayer', activeBidders[0]);
-
-  let effects = [{
+  const effects = [{
     player: currentPlayer,
     reclaims: currentBid - currentBidLost,
     pays: currentBidLost,
     card: state.getIn(['players', currentPlayer, 'buyCards']).last(),
   }];
+
+  const activeBidders = findNextPlayers(state);
+  state = state.set('currentPlayer', activeBidders[0]);
   
+  let endOfRound = false;
   if(activeBidders.length === 1) { // Round over!
     
     const winningPlayer = activeBidders[0];
     const winningBid = state.getIn(['players', winningPlayer, 'currentBid']);
     state = cashOutBid(state, winningPlayer, winningBid);
-
-    const cardsInDeck = state.getIn(['table', 'deckCards']).size - state.getIn(['table', 'goneCardCount']);
-    const playerCount = state.get('players').size;
 
     effects.push({
       player: winningPlayer,
@@ -205,11 +203,20 @@ function applyBuyDecisionToPass(rng, decision, state) {
       card: state.getIn(['players', winningPlayer, 'buyCards']).last(),
     });
 
-    state = state.updateIn(['diffs'], diffs => diffs.push({
-      action: 'pass',
-      player: currentPlayer,
-      effects
-    }));
+    endOfRound = true;
+  }
+
+  state = state.updateIn(['diffs'], diffs => diffs.push(Immutable.fromJS({
+    action: 'pass',
+    player: currentPlayer,
+    endOfRound,
+    effects
+  })));
+
+  if(endOfRound) {
+
+    const cardsInDeck = state.getIn(['table', 'deckCards']).size - state.getIn(['table', 'goneCardCount']);
+    const playerCount = state.get('players').size;
 
     if(cardsInDeck > 0) { // Still have cards to buy?
 
@@ -280,10 +287,10 @@ function applySellDecision(decision, state) {
       }));
     }
 
-    state = state.updateIn(['diffs'], diffs => diffs.push({
+    state = state.updateIn(['diffs'], diffs => diffs.push(Immutable.fromJS({
       action: 'sell',
       effects,
-    }));
+    })));
 
     const cardsInDeck = state.getIn(['table', 'deckCards']).size - state.getIn(['table', 'goneCardCount']);
     const playerCount = state.get('players').size;
@@ -296,9 +303,9 @@ function applySellDecision(decision, state) {
       });
     } else {
       state = state.set('phase', 'postgame');
-      state = state.updateIn(['diffs'], diffs => diffs.push({
+      state = state.updateIn(['diffs'], diffs => diffs.push(Immutable.fromJS({
         action: 'gameover',
-      }));
+      })));
     }
 
   }

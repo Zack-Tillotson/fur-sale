@@ -14,6 +14,7 @@ import CardTable from '../CardTable';
 import PlayerList from '../PlayerList';
 import PlayerSessions from '../PlayerSessions';
 import PregameActions from '../PregameActions';
+import History from '../History';
 
 const GameView = React.createClass({
 
@@ -78,23 +79,29 @@ const GameView = React.createClass({
 
               )}
 
-              {this.props.furSale.phase !== 'pregame' && this.props.furSale.phase !== 'postgame' && (
+              {(this.props.furSale.phase === 'buy' || this.props.furSale.phase === 'sell') && (
 
                 <div className="inGame">
 
-                  <CardTable
-                    key={this.props.roundNum}
-                    phase={this.props.furSale.phase}
-                    roundNum={this.props.furSale.roundNum}
-                    visibleCardsGone={this.props.furSale.visibleCardsGone}
-                    visibleCards={this.props.furSale.visibleCards} />
+                  <History history={this.props.furSale.history} />
 
-                  <PlayerList
-                    phase={this.props.furSale.phase}
-                    players={this.props.furSale.players} 
-                    passBet={this.props.passBet}
-                    makeBet={this.props.makeBet}
-                    sellCard={this.props.sellCard} />
+                  <div className="gameInfo">
+
+                    <CardTable
+                      key={this.props.roundNum}
+                      phase={this.props.furSale.phase}
+                      roundNum={this.props.furSale.roundNum}
+                      visibleCardsGone={this.props.furSale.visibleCardsGone}
+                      visibleCards={this.props.furSale.visibleCards} />
+
+                    <PlayerList
+                      phase={this.props.furSale.phase}
+                      players={this.props.furSale.players} 
+                      passBet={this.props.passBet}
+                      makeBet={this.props.makeBet}
+                      sellCard={this.props.sellCard} />
+
+                  </div>
 
                 </div>
 

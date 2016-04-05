@@ -100,6 +100,8 @@ export default (state) => {
     });
   }
 
+  const history = engine.get('diffs');
+
   // Meta information
   const isGameOwner = isLoggedIn && ownerId === authInfo.uid;
   const canJoinGame = isLoggedIn && !!game.get('gameId') && phase === 'pregame';
@@ -114,6 +116,7 @@ export default (state) => {
     visibleCardsGone,
     deckCardCount,
     players,
+    history,
     roundNum,
     sessions,
     isGameOwner,
