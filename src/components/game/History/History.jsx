@@ -77,20 +77,21 @@ const History = React.createClass({
     switch(event.get('action')) {
       case 'buyPhaseStarts':
         return (
-           <div className="historyItemDetail">
+           <div className="historyItemDetail buyStart">
              Buy Phase Starts!
            </div>
         );
       case 'sellPhaseStarts':
         return (
-           <div className="historyItemDetail">
-             Buy Phase Complete, Sell Phase Starts!
+           <div className="historyItemDetail endOfRound">
+             <div className="buyPart">Buy Phase Complete</div>
+             <div className="sellPart">Sell Phase Starts!</div>
            </div>
         );
       case 'bid':
         return (
            <div className="historyItemDetail">
-             bidding!
+             Bid!
            </div>
         );
       case 'pass':

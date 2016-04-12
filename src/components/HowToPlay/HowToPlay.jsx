@@ -5,31 +5,71 @@ import styles from './styles';
 
 const HowToPlay = React.createClass({
 
-  propTypes: {
-
-  },
-
-  getDefaultProps() {
-    return {
-
-    }
-  },
-
   render() {
     return (
       <InlineCss stylesheet={styles} componentName="component">
-        <h3>How To Play</h3>
-        <section>
-          <h4>Overview</h4>
-          <p>Fur Sale is fast and fun card game to play with your friends! You are an investor looking to make money, first acquire investments in the <b>Buy Phase</b> and then flip them for profit in the <b>Sell Phase</b>.</p>
+        <section className="overview">
+          <h4>How To Play</h4>
+          <div className="desc">
+            <div className="majorPoint">Fur Sale is fast and fun card game to play with your friends!</div>
+            <div className="cardPoints">
+              <div className="cardPoint">
+                The game is played in two rounds - the <span className="buyPhaseName">Buy Phase</span> and the <span className="sellPhaseName">Sell Phase</span>.
+              </div>
+              <div className="cardPoint">
+                <img src="image of happy cats and money!" />
+              </div>
+            </div>
+          </div>
         </section>
-        <section>
+        <section className="buy">
           <h4>Buy Phase</h4>
-          <p>Take turns bidding on the shown cards. The first player to <b>pass</b> gets the lowest card left and half (rounded down) of any outstanding bids. The player who wins the bid gets the highest card but does not get a refund on his bid.</p>
+          <div className="desc">
+            <div className="majorPoint">
+              In this phase you acquire investments (kittens)!
+            </div>
+            <div className="cardPoints">
+              <div className="cardPoint">
+                You have to spend money to make money, players bid in turn on the shown cards.
+                <img src="show some buy cards" />
+              </div>
+              <div className="cardPoint">
+                When a player chooses to <b>pass</b> they get the lowest card on the table and are refunded half of their previous bid.
+              </div>
+              <div className="cardPoint">
+                The player who wins the bid gets the highest card but does not get a refund.
+              </div>
+            </div>
+          </div>
         </section>
-        <section>
+        <section className="sell">
           <h4>Sell Phase</h4>
-          <p>Each round players secretly choose one of the cards they acquired in the Buy Phase to sell. When all players have chosen all cards are revealed, players receive the payment according to who revealed the highest valued cards.</p>
+          <div className="desc">
+            <div className="majorPoint">
+              In this phase sell your investments fur lots of money!
+            </div>
+            <div className="cardPoints">
+              <div className="cardPoint">
+                Each round players secretly choose one of their investments to sell.
+              </div>
+              <div className="cardPoint">
+                Everyone reveals their card! The top investment gets the top price! Each other players gets the next highest price in turn.
+              </div>
+            </div>
+          </div>
+        </section>
+        <section className="endOfGame">
+          <h4>End of Game</h4>
+          <div className="desc">
+            <div className="majorPoint">
+              The game is over when all your investments have been sold.
+            </div>
+            <div className="cardPoints">
+              <div className="cardPoint">
+                 Everyone adds their payments received and their leftover investment money, the player with the highest wins!
+              </div>
+            </div>
+          </div>
         </section>
       </InlineCss>
     );

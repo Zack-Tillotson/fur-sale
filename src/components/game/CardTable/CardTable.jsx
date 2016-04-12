@@ -45,7 +45,7 @@ export default React.createClass({
                 transitionLeaveTimeout={2000}>
                 {this.props.visibleCards.sort().map(card => (
                   <Card 
-                    key={card}
+                    key={`${this.props.roundNum} ${card}`}
                     value={card}
                     size={this.props.size}
                     type={this.props.phase}

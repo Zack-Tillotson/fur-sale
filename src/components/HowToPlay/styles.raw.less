@@ -1,5 +1,78 @@
 component {
 
+  section {
+
+    &.overview {
+      background: #e5e5e5;
+      color: #000;
+
+      h4 {
+        background: #ddd;
+        color: #000;
+      }
+    }
+
+    &.buy {
+      background: #C6E7F2;
+      color: #000;
+
+      h4 {
+        background: #0D3D65;
+        color: #fff;
+      }
+    }
+
+    &.sell {
+      background: #C9FFC9;
+      color: #000;
+
+      h4 {
+        background: #297529;
+        color: #fff;
+      }
+    }
+
+    &.endOfGame {
+      background: #e5e5e5;
+      color: #000;
+
+      h4 {
+        background: #666;
+        color: #fff;
+      }
+    }
+  
+    h4 {
+      font-size: 36px;
+      padding: 20px 10px;
+    }
+
+    .desc {
+      padding: 10px 15px;
+      margin: 0 auto;
+      font-size: 18px;
+
+      .majorPoint {
+        font-size: 24px;
+      }
+
+      .cardPoints {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: top;
+        padding: 5px 5px;
+
+        .cardPoint {
+          flex-grow: 1;
+          text-align: center;
+          min-width: 300px;
+          padding: 10px 5px;
+        }
+      }
+    }
+  }
 }
 
 @media (max-width: 600px) {
