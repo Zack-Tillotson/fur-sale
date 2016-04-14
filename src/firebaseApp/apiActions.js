@@ -117,7 +117,43 @@ function endSyncGameData() {
   }
 }
 
-function createGame() {
+function beginSyncGameList() {
+  return function(dispatch, getState) {
+    const event = 'beginSyncGameList';
+
+    return new Promise((resolve, reject) => {
+
+      utils.connect('publicGames')
+        .orderByKey()
+        .limitToLast(10)
+        .on('value', snapshot => {
+
+          const data = snapshot.val() || {};
+          const list = Object.keys(data).map(publicGameKey => {
+            return {
+              ...data[publicGameKey],
+              publicGameKey,
+            }
+          });
+          
+          success(dispatch, event, list);
+          resolve();
+
+        });
+    })
+  }
+}
+
+function endSyncGameList() {
+  return function(dispatch, getState) {
+
+    const event = 'endSyncGameList';
+    utils.connect('publicGames').off('value');
+
+  }
+}
+
+function createGame(isPublic = true) {
   return function(dispatch, getState) {
 
     const event = 'createGame';
@@ -128,15 +164,26 @@ function createGame() {
     const gameMode = 'lobby';
     const createdAt = Firebase.ServerValue.TIMESTAMP;
     
-    return new Promise(function(resolve, reject) {
-      utils.connect('games')
-        .push({owner, rngSeed, gameMode, createdAt})
-        .then(ref => {
-          const id = ref.key();
-          success(dispatch, event, id);
-          resolve(id);
-        });
-    });
+    return utils.connect('games')
+      .push({owner, rngSeed, gameMode, createdAt, isPublic})
+      .then(ref => {
+        const id = ref.key();
+        return id;
+      })
+      .then(id => {
+        if(isPublic) {
+          return utils.connect('publicGames')
+          .push({createdAt, isPublic, gameId: id})
+          .then(ref => {
+            return Promise.resolve(id);
+          });
+        } else {
+          return Promise.resolve(id);
+        }
+      }).then(id => {
+        success(dispatch, event, id);
+        return Promise.resolve(id);
+      });
   }
 }
 
@@ -309,14 +356,16 @@ function updateSessionInfo(info) {
 }
 
 export default {
-  beginSyncGameData, 
-  touchSession, 
-  endSyncGameData, 
-  createGame, 
-  joinGame, 
-  startGame, 
-  makeBet, 
+  beginSyncGameData,
+  touchSession,
+  endSyncGameData,
+  createGame,
+  joinGame,
+  startGame,
+  makeBet,
   passBet,
-  sellCard, 
-  updateSessionInfo
+  sellCard,
+  updateSessionInfo,
+  beginSyncGameList,
+  endSyncGameList,
 }

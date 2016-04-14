@@ -9,15 +9,16 @@ import styles from './styles';
 
 import LoginForm from '../../LoginForm';
 
-const NewGameButton = React.createClass({
+const NewGameForm = React.createClass({
 
   propTypes: {
-    furSale: React.PropTypes.object.isRequired,
+    firebase: React.PropTypes.object.isRequired,
     createGame: React.PropTypes.func.isRequired,
   },
 
   createGameAndNavigate() {
-    this.props.createGame().then(this.navigateToGame);
+    const isPublic = this.refs.publicToggleInput.value;
+    this.props.createGame(isPublic).then(this.navigateToGame);
   },
 
   navigateToGame(id) {
@@ -37,7 +38,13 @@ const NewGameButton = React.createClass({
         )}
 
         {this.props.firebase.isLoggedIn && (
-          <button onClick={this.createGameAndNavigate}>Create Game</button>
+          <div className="newGameForm">
+            <div className="publicToggle">
+              <label htmlFor="publicToggle">Public?</label>
+              <input type="checkbox" id="publicToggle" ref="publicToggleInput" defaultChecked={true} />
+            </div>
+            <button onClick={this.createGameAndNavigate}>Create Game</button>
+          </div>
         )}
 
       </InlineCss>
@@ -46,14 +53,16 @@ const NewGameButton = React.createClass({
 });
 
 const selector = (state) => {
-  const furSale = appSelector(state);
   const firebase = fbSelector(state);
-  return {furSale, firebase};
+
+  return {firebase};
 }
 
 const dispatcher = (dispatch) => {
-  const furSale = appDispatcher(dispatch);
-  return {...furSale};
+  const {createGame} = appDispatcher(dispatch);
+  return {
+    createGame,
+  };
 }
 
-export default connect(selector, dispatcher)(NewGameButton);
+export default connect(selector, dispatcher)(NewGameForm);

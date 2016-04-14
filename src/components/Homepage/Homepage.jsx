@@ -4,6 +4,7 @@ import InlineCss from "react-inline-css";
 import Page from '../Page';
 import NewGameButton from '../game/NewGameButton';
 import HowToPlay from '../HowToPlay';
+import CreateOrJoinControls from '../CreateOrJoinControls';
 
 import styles from './styles';
 
@@ -18,8 +19,7 @@ const Homepage = React.createClass({
             <img src="/assets/headline.png" />
           </div>
           <div className="gameControls">
-            <h3>Create or Join A Game</h3>
-            <NewGameButton />
+            <CreateOrJoinControls />
           </div>
           <HowToPlay />
         </InlineCss>

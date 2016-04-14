@@ -10,6 +10,9 @@ import util from './util';
 
 const defaultState = Immutable.fromJS({
 
+  // The list of public games
+  publicGames: [],
+
   // From our successful 'joinGame' action
   gameId: '',
 
@@ -84,6 +87,11 @@ export default function(state = defaultState, action) {
         case 'beginSyncGameData':
           return state.merge({
             gameId: action.data,
+          });
+
+        case 'beginSyncGameList':
+          return state.merge({
+            publicGames: action.data,
           });
 
         default:

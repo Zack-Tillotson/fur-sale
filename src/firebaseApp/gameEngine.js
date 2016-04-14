@@ -6,7 +6,7 @@ import util from './util';
 
 const INITIAL_PLAYER_MONEY = 14;
 const DECK_SIZE = 30;
-const GONE_CARD_COUNTS = {2: 24, 3: 6, 4: 0, 5: 0};
+const GONE_CARD_COUNTS = {2: 24, 3: 6, 4: 2, 5: 0, 6: 0};
 
 // State shape:
 // {

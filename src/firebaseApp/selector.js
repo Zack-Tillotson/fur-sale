@@ -5,6 +5,7 @@ export default (state) => {
   const {authInfo, isLoggedIn} = firebaseSelector(state);
 
   const game = state.firebaseApp;
+  const publicGames = game.get('publicGames');
   const engine = game.get('engine');
 
   // Phase title
@@ -134,6 +135,7 @@ export default (state) => {
   const readyToStart = isLoggedIn && phase === 'pregame' && sessions.size > 1 && sessions.size < 7;
 
   return {
+    publicGames,
     game,
     phase,
     roundNum,

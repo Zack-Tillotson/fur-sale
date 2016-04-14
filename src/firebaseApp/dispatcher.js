@@ -33,6 +33,14 @@ export default function(dispatch, props) {
       dispatch(apiActions.updateSessionInfo({name}));
     },
 
+    beginSyncPublicGameList() {
+      return dispatch(apiActions.beginSyncGameList());
+    },
+
+    endSyncPublicGameList(id) {
+      dispatch(apiActions.endSyncGameList());
+    },
+
     beginSyncGameData(id) {
       return dispatch(apiActions.beginSyncGameData(id));
     },
