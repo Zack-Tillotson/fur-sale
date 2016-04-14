@@ -50,10 +50,10 @@ component {
     .desc {
       padding: 10px 15px;
       margin: 0 auto;
-      font-size: 18px;
+      font-size: 14px;
 
       .majorPoint {
-        font-size: 24px;
+        font-size: 18px;
       }
 
       .cardPoints {
@@ -67,8 +67,17 @@ component {
         .cardPoint {
           flex-grow: 1;
           text-align: center;
-          min-width: 300px;
+          max-width: 400px;
           padding: 10px 5px;
+
+          .cardPointLogo {
+            display: block;
+
+            img {
+              margin-top: 15px;
+              height: 50px;
+            }
+          }
         }
       }
     }
