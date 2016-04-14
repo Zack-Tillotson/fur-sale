@@ -73,37 +73,71 @@ const History = React.createClass({
   },
 
   getHistoryItemDetail() {
-    const event = this.state.hoveredItem;
-    switch(event.get('action')) {
+    const historyItem = this.state.hoveredItem;
+    switch(historyItem.get('action')) {
       case 'buyPhaseStarts':
         return (
-           <div className="historyItemDetail buyStart">
-             Buy Phase Starts!
-           </div>
+          <div className="historyItemDetail buyStart">
+            Buy Phase Starts!
+          </div>
         );
       case 'sellPhaseStarts':
         return (
-           <div className="historyItemDetail endOfRound">
-             <div className="buyPart">Buy Phase Complete</div>
-             <div className="sellPart">Sell Phase Starts!</div>
-           </div>
+          <div className="historyItemDetail sellStart">
+            Sell Phase Starts!
+          </div>
         );
       case 'bid':
+        const isSelf = historyItem.get('player').get('isSelf');
         return (
-           <div className="historyItemDetail">
-             Bid!
-           </div>
+          <div className="historyItemDetail bidAction">
+            {isSelf && `You bid`}
+            {!isSelf && `${historyItem.get('player').get('name')} bids`}
+            &nbsp;
+            ${historyItem.get('bid')}!
+          </div>
         );
       case 'pass':
         return (
-           <div className="historyItemDetail">
-             passed!
+           <div className="historyItemDetail passAction">
+            <div className="playerPasses">
+              {historyItem.get('player').get('name')} passes!
+            </div>
+            {historyItem.get('effects').map((effect, index) => {
+              const isSelf = effect.get('player').get('isSelf');
+              return (
+                <div className="passEffect" key={index}>
+                  {isSelf && 'You '}
+                  {!isSelf && effect.get('player').get('name')}
+                  &nbsp;
+                  paid ${effect.get('pays')} for the {effect.get('card')} card (${effect.get('reclaims')} refund).
+                </div>
+              );
+            })}
            </div>
         );
       case 'sell':
         return (
-           <div className="historyItemDetail">
-             sell!
+           <div className="historyItemDetail sellAction">
+            <div className="sellTitle">
+              Everyone has chosen their card!
+            </div>
+            {historyItem.get('effects').map((effect, index) => {
+              const isSelf = effect.get('player').get('isSelf');
+              return (
+                <div className="passEffect" key={index}>
+                  {isSelf && 'You sell '}
+                  {!isSelf && `${effect.get('player').get('name')} sells `}
+                  the {effect.get('buyCard')} for ${effect.get('sellCard')}.
+                </div>
+              );
+            })}
+           </div>
+        );
+      case 'gameover':
+        return (
+           <div className="historyItemDetail gameover">
+             Game Over!
            </div>
         );
       default:

@@ -100,7 +100,32 @@ export default (state) => {
     });
   }
 
-  const history = engine.get('diffs');
+  const history = engine.get('diffs').map(diff => {
+
+    const action = diff.get('action');
+
+    switch(action) {
+      case 'buyPhaseStarts':
+        return diff;
+      case 'bid':
+        return diff.merge({
+          player: players.get(diff.get('player')),
+        });
+      case 'pass':
+      case 'sell':
+        const effects = diff.get('effects').map(effect => {
+          return effect.merge({
+            player: players.get(effect.get('player')),
+          });
+        });
+        return diff.merge({
+          player: players.get(diff.get('player')),
+          effects,
+        });
+      default: 
+        return diff;
+    }
+  });
 
   // Meta information
   const isGameOwner = isLoggedIn && ownerId === authInfo.uid;
