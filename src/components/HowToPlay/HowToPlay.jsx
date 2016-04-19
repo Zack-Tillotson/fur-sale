@@ -14,9 +14,6 @@ const HowToPlay = React.createClass({
             <div className="cardPoints">
               <div className="cardPoint">
                 The game is played in two rounds - the <span className="buyPhaseName">Buy Phase</span> and the <span className="sellPhaseName">Sell Phase</span>.
-                <div className="cardPointLogo">
-                  <img src="/assets/howToPlay/catsMoney.jpg" />
-                </div>
               </div>
             </div>
           </div>
@@ -29,21 +26,21 @@ const HowToPlay = React.createClass({
             </div>
             <div className="cardPoints">
               <div className="cardPoint">
-                You have to spend money to make money, players bid in turn on the shown cards.
+                Each round every player gets an investment card and players bid to get the best cards.
                 <div className="cardPointLogo">
-                  <img src="show some buy cards" />
+                  <img src="/assets/howToPlay/buycards.png" />
                 </div>
               </div>
               <div className="cardPoint">
                 When a player chooses to <b>pass</b> they get the lowest card on the table and are refunded half of their previous bid.
                 <div className="cardPointLogo">
-                  <img src="show some buy cards" />
+                  <img src="/assets/howToPlay/passrefund.png" />
                 </div>
               </div>
               <div className="cardPoint">
                 The player who wins the bid gets the highest card but does not get a refund.
                 <div className="cardPointLogo">
-                  <img src="show some buy cards" />
+                  <img src="/assets/howToPlay/passwin.png" />
                 </div>
               </div>
             </div>
@@ -57,15 +54,21 @@ const HowToPlay = React.createClass({
             </div>
             <div className="cardPoints">
               <div className="cardPoint">
-                Each round players secretly choose one of their investments to sell.
+                Each round every players sells an investment card and gains a price card.
                 <div className="cardPointLogo">
-                  <img src="show some buy cards" />
+                  <img src="/assets/howToPlay/sellcards.png" />
                 </div>
               </div>
               <div className="cardPoint">
-                Everyone reveals their card! The top investment gets the top price! Each other players gets the next highest price in turn.
+                Eeryone secretly choose one of their investments to sell.
                 <div className="cardPointLogo">
-                  <img src="show some buy cards" />
+                  <img src="/assets/howToPlay/choosesell.png" />
+                </div>
+              </div>
+              <div className="cardPoint">
+                The highest investment card gets the top price! Each other players gets the next highest price in turn.
+                <div className="cardPointLogo">
+                  <img src="/assets/howToPlay/matchingcards.png" />
                 </div>
               </div>
             </div>
@@ -81,7 +84,7 @@ const HowToPlay = React.createClass({
               <div className="cardPoint">
                  Everyone adds their payments received and their leftover investment money, the player with the highest wins!
                  <div className="cardPointLogo">
-                  <img src="show some buy cards" />
+                  <img className="luckyCat" src="/assets/howToPlay/luckycat.png" />
                 </div>
               </div>
             </div>

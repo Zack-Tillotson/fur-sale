@@ -9,20 +9,12 @@ import NewGameForm from '../game/NewGameForm';
 
 import styles from './styles';
 
-const tabTitles = ['Create', 'Join Game'];
-
 const CreateOrJoinControls = React.createClass({
 
   propTypes: {
     publicGames: React.PropTypes.object.isRequired,
     beginSyncPublicGameList: React.PropTypes.func.isRequired,
     endSyncPublicGameList: React.PropTypes.func.isRequired,
-  },
-
-  getInitialState() {
-    return {
-      activeTab: tabTitles[0],
-    };
   },
 
   componentDidMount() {
@@ -33,50 +25,40 @@ const CreateOrJoinControls = React.createClass({
     this.props.endSyncPublicGameList();
   },
 
-  changeActiveTab(activeTab) {
-    this.setState({activeTab});
+  navigateToGame() {
+    const gameId = this.getJoinableGameId();
+    if(gameId) {
+      window.location = `/games/${gameId}/`; 
+    }
   },
 
-  navigateToGame(gameId) {
-    window.location = `/games/${gameId}/`; 
+  getJoinableGameId() {
+    const joinableGame = this.props.publicGames.filter(game => game.get('createdAt') > Date.now() - 60*60*1000).first();
+    if(joinableGame) {
+      return joinableGame.get('gameId');
+    } else {
+      return;
+    }
   },
 
   render() {
+    const joinableGameId = this.getJoinableGameId();
+    const hasJoinableGameClass = joinableGameId ? 'joinable' : 'unjoinable';
     return (
       <InlineCss stylesheet={styles} componentName="component">
-        <div className="tabTitles">
-          {tabTitles.map(tabTitle => {
-            const activeClass = this.state.activeTab === tabTitle ? 'active' : 'inactive';
-            return (
-              <div key={tabTitle}
-                className={`tabTitle ${tabTitle} ${activeClass}`}
-                onClick={this.changeActiveTab.bind(this, tabTitle)}>
-                {tabTitle}
-              </div>
-            );
-          })}
-        </div>
-        <div className="tabContent">
-          {this.state.activeTab === tabTitles[0] && (
-            <div className="createTab">
-              <h3>Create New Game</h3>
-              <NewGameForm />
+        {joinableGameId && (
+          <div className="optionTab joinTab" onClick={this.navigateToGame}>
+            <div className="control">
+              <button>Join Active Game</button>
             </div>
-          )}
-          {this.state.activeTab === tabTitles[1] && (
-            <div className="joinTab">
-              <h3>Join A Game!</h3>
-              <div className="publicGameList">
-                {this.props.publicGames.sort().reverse().map((game, index)=> {
-                  return (
-                    <div className="game" onClick={this.navigateToGame.bind(this, game.get('gameId'))}>
-                      {parseInt((Date.now() - game.get('createdAt')) / 1000 / 60)} minutes ago.
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+            <div className="description">Join a recently created game waiting for more players!</div>
+          </div>
+        )}
+        <div className={`optionTab createTab ${hasJoinableGameClass}`}>
+          <div className="control">
+            <NewGameForm />
+          </div>
+          <div className="description">Create a new game. Anyone can join a public game but non-public games are only available to people via sharing the URL.</div>
         </div>
       </InlineCss>
     );

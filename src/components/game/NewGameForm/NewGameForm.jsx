@@ -39,11 +39,11 @@ const NewGameForm = React.createClass({
 
         {this.props.firebase.isLoggedIn && (
           <div className="newGameForm">
+            <button onClick={this.createGameAndNavigate}>Create Game</button>
             <div className="publicToggle">
               <label htmlFor="publicToggle">Public?</label>
               <input type="checkbox" id="publicToggle" ref="publicToggleInput" defaultChecked={true} />
             </div>
-            <button onClick={this.createGameAndNavigate}>Create Game</button>
           </div>
         )}
 

@@ -1,5 +1,30 @@
 component {
+  display: flex;
+  flex-flow: row wrap;
 
+  .optionTab {
+    flex: 1;
+    min-width: 250px;
+
+    .control {
+      display: inline-block;
+      text-align: center;
+      margin: 5px;
+    }
+  }
+
+  button {
+    font-size: 18px;
+    background: #0D3D65;
+    border: none;
+    border-radius: 2px;
+    color: #fff;
+    padding: 5px 10px;
+  }
+
+  .description {
+    font-size: 15px;
+  }
 }
 
 @media (max-width: 600px) {

@@ -2,7 +2,6 @@ import React from 'react';
 import InlineCss from "react-inline-css";
 
 import Page from '../Page';
-import NewGameButton from '../game/NewGameButton';
 import HowToPlay from '../HowToPlay';
 import CreateOrJoinControls from '../CreateOrJoinControls';
 

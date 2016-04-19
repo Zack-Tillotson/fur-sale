@@ -31,7 +31,9 @@ export default React.createClass({
   },
 
   betClickHandler() {
-    this.props.makeBet(this.state.bidAmount);
+    if(this.state.bidAmount <= this.props.player.get('maxBid')) {
+      this.props.makeBet(this.state.bidAmount);
+    }
   },
 
   increaseBid() {
@@ -68,6 +70,8 @@ export default React.createClass({
       actionText = 'Bids $' + player.get('currentBid');
     }
 
+    const bidButtonDisabled = !player.get('isActive') || this.state.bidAmount > player.get('maxBid');
+
     return (
       <InlineCss 
         stylesheet={styles} 
@@ -80,12 +84,12 @@ export default React.createClass({
           {actionText}
         </div>
         <div className="money">
-          ${player.get('money')}
+          {player.get('isSelf') && `$${player.get('money')}`}
         </div>
         {player.get('isSelf') && this.props.phase === 'buy' && (
           <div className="controls">
             <div className="betContainer">
-              <button className="bet" disabled={!player.get('isActive')} onClick={this.betClickHandler}>Bid ${this.state.bidAmount}</button>
+              <button className="bet" disabled={bidButtonDisabled} onClick={this.betClickHandler}>Bid ${this.state.bidAmount}</button>
               <div className="plusMinus">
                 <button 
                   className="minus" 

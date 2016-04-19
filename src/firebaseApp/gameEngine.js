@@ -45,7 +45,7 @@ function getInitialBuyPhaseState(seed, sessions) {
 
   const phase = 'buy';
   const currentPlayer = 0;
-  const visibleCards = cards.slice(0, players.length).sort();
+  const visibleCards = cards.slice(0, players.length).sort((a,b) => a-b);
   const deckCards = cards.slice(players.length);
   const goneCardCount = GONE_CARD_COUNTS[players.length] || 0;
 
@@ -92,7 +92,7 @@ function getInitialSellPhaseState(state, rng) {
   const cards = Immutable.fromJS(cardsAry);
 
   const phase = 'sell';
-  const visibleCards = cards.take(players.size).sort();
+  const visibleCards = cards.take(players.size).sort((a,b) => a-b);
   const deckCards = cards.skip(players.size);
   const goneCardCount = GONE_CARD_COUNTS[players.size] || 0;
 
@@ -221,7 +221,7 @@ function applyBuyDecisionToPass(rng, decision, state) {
     if(cardsInDeck > 0) { // Still have cards to buy?
 
       state = state.updateIn(['table'], table => {
-        const visibleCards = table.get('deckCards').take(playerCount).sort();
+        const visibleCards = table.get('deckCards').take(playerCount).sort((a,b) => a-b);
         const deckCards = table.get('deckCards').skip(playerCount);
         return table.merge({visibleCards, deckCards});
       });
@@ -297,7 +297,7 @@ function applySellDecision(decision, state) {
 
     if(cardsInDeck > 0) { // Still have cards to sell?
       state = state.updateIn(['table'], table => {
-        const visibleCards = table.get('deckCards').take(playerCount).sort();
+        const visibleCards = table.get('deckCards').take(playerCount).sort((a,b) => a-b);
         const deckCards = table.get('deckCards').skip(playerCount);
         return table.merge({visibleCards, deckCards});
       });
