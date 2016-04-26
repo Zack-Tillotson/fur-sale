@@ -1,5 +1,6 @@
 import actions from './actions';
 import apiActions from './apiActions';
+import aiActions from './aiActions';
 
 export default function(dispatch, props) {
 
@@ -17,6 +18,10 @@ export default function(dispatch, props) {
       dispatch(apiActions.startGame());
     },
 
+    addAiPlayer() {
+      dispatch(apiActions.addAiPlayer());
+    },
+
     makeBet(amount) {
       dispatch(apiActions.makeBet(amount));
     },
@@ -27,6 +32,10 @@ export default function(dispatch, props) {
 
     sellCard(card) {
       dispatch(apiActions.sellCard(card));
+    },
+
+    requestAiAction() {
+      dispatch(aiActions.requestAction());
     },
 
     updatePlayerName(name) {

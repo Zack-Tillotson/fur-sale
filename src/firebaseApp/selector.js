@@ -31,9 +31,16 @@ export default (state) => {
   // Players
   let players;
   let roundNum = 1;
+  let activeAiId = null;
   if(phase === 'buy') {
 
-    const activePlayerId = engine.getIn(['players', engine.get('currentPlayer')]).get('playerId');
+    const activePlayer = engine.getIn(['players', engine.get('currentPlayer')]);
+    const activePlayerId = activePlayer.get('playerId');
+
+    if(activePlayer.get('isAI')) {
+      activeAiId = activePlayerId;
+    }
+
     const minBid = engine.get('players').sort((a, b) => b.get('currentBid') - a.get('currentBid')).first().get('currentBid') + 1;
 
     players = engine.get('players').map(player => {
@@ -72,10 +79,14 @@ export default (state) => {
       const isActive = player.get('currentOffer') === 0;
       const isOwner = player.get('playerId') === ownerId;
 
+      if(!activeAiId && isActive && player.get('isAI')) {
+        activeAiId = player.get('playerId');
+      }
+
       const money = player.get('money');
 
       let ownCards = player.get('buyCards').map(card => isSelf ? card : 0).sort();
-      
+
       return player.merge({
         isSelf, isActive, isOwner, ownCards, money
       });
@@ -93,9 +104,14 @@ export default (state) => {
       const money = player.get('money');
 
       let ownCards = player.get('buyCards').map(card => isSelf ? card : 0).sort();
+
+      let totalMoney = money;
+      if(phase === 'gameover') {
+        totalMoney = player.get('sellCards').reduce((soFar, card) => soFar + card, money);
+      }
       
       return player.merge({
-        isSelf, isActive, isOwner, ownCards, money
+        isSelf, isActive, isOwner, ownCards, money, totalMoney
       });
 
     });
@@ -149,7 +165,8 @@ export default (state) => {
     isGameOwner,
     canJoinGame,
     hasJoinedGame,
-    readyToStart
+    readyToStart,
+    activeAiId,
   };
   
 }

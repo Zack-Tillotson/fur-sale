@@ -99,10 +99,11 @@ export default React.createClass({
               const isOwnerClass = session.get('isOwner') ? 'owner' : 'notOwner';
               const selfClass = session.get('isSelf') ? 'isSelf' : 'notSelf';
               const connectionClass = session.get('connectionStatus');
+              const isAiClass = session.get('isAI') ? 'isAi' : 'notAi';
 
               return (
                 <tr key={session.get('playerId')} className={`${selfClass}`}>
-                  <td className={isOwnerClass}></td>
+                  <td className={`${isOwnerClass} ${isAiClass}`}></td>
                   <td className="playerName">
                     {this.getPlayerName(session)}
                   </td>

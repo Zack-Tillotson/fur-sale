@@ -257,6 +257,30 @@ function startGame() {
   }
 }
 
+function addAiPlayer() {
+  return function(dispatch, getState) {
+
+    const event = 'addAiPlayer';
+    const uid = requireLogin(event, dispatch, getState);
+    const gameId = requireGame(event, dispatch, getState);
+      
+    const ref = utils.connect('games')
+      .child(gameId)
+      .child('sessions')
+      .child(`ai:${parseInt(Math.random()*1000000)}`);
+
+    const name = 'AI Player';
+
+    ref.set({
+      name,
+      isAI: true,
+      connectionStatus: 'online',
+      joinedAt: Firebase.ServerValue.TIMESTAMP, 
+      activeAt: Firebase.ServerValue.TIMESTAMP,
+    });
+  }
+}
+
 function makeBet(amount) {
   return function(dispatch, getState) {
 
@@ -308,7 +332,7 @@ function passBet() {
   }
 }
 
-function sellCard(card) {
+function sellCard(card, playerId) {
   return function(dispatch, getState) {
 
     const event = 'sellCard';
@@ -317,7 +341,7 @@ function sellCard(card) {
 
     const decision = {
       timestamp: Firebase.ServerValue.TIMESTAMP,
-      playerId: uid,
+      playerId: playerId || uid,
       card,
     }
 
@@ -362,6 +386,7 @@ export default {
   createGame,
   joinGame,
   startGame,
+  addAiPlayer,
   makeBet,
   passBet,
   sellCard,

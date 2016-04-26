@@ -12,6 +12,7 @@ var envPlugin = new webpack.DefinePlugin({
 
 module.exports = {
   entry: {
+    // app: './src/firebaseApp/minimax/test.js',
     app: './src/index.js',
     tests: './src/tests.js'
   },

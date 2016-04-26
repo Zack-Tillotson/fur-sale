@@ -34,11 +34,14 @@ const GameView = React.createClass({
     if(!this.props.firebase.isLoggedIn && nextProps.firebase.isLoggedIn) {
       this.connectToFirebaseData();
     }
+    if(nextProps.furSale.activeAiId && this.props.furSale.activeAiId !== nextProps.furSale.activeAiId) {
+      this.props.requestAiAction();
+    }
   },
 
   connectToFirebaseData() {
     this.props.beginSyncGameData(this.props.params.gameId)
-       .then(() => {
+      .then(() => {
         if(this.props.furSale.canJoinGame) {
           this.props.joinGame();
         }
@@ -71,9 +74,10 @@ const GameView = React.createClass({
                     updatePlayerName={this.props.updatePlayerName} />
 
                   <PregameActions
-                    canStartGame={this.props.furSale.isGameOwner && this.props.furSale.readyToStart}
-                    playerCount={this.props.furSale.players.size}
-                    startGame={this.props.startGame} />                
+                    isOwner={this.props.furSale.isGameOwner}
+                    readyToStart={this.props.furSale.readyToStart}
+                    startGame={this.props.startGame}
+                    addAiPlayer={this.props.addAiPlayer} />
 
                 </div>
 
