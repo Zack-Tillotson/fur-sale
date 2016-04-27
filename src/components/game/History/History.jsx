@@ -23,10 +23,10 @@ const History = React.createClass({
     this.setState({hoveredItem: null});
   },
 
-  getHistoryItem(item) {
+  getHistoryItem(item, index) {
 
     const hoverControls = {
-      key: item,
+      key: index,
       onMouseEnter: this.onItemHover.bind(this, item),
       onMouseLeave: this.onItemUnhover,
       onTouchStart: this.onItemHover.bind(this, item),

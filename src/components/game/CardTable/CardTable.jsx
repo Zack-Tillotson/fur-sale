@@ -43,9 +43,9 @@ export default React.createClass({
                 transitionAppear={true}
                 transitionAppearTimeout={2000}
                 transitionLeaveTimeout={2000}>
-                {this.props.visibleCards.sort().map(card => (
+                {this.props.visibleCards.sort().map((card, index) => (
                   <Card 
-                    key={`${this.props.roundNum} ${card}`}
+                    key={`${this.props.roundNum} ${card} ${index}`}
                     value={card}
                     size={this.props.size}
                     type={this.props.phase}

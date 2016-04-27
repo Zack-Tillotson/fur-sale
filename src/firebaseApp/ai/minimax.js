@@ -4,6 +4,7 @@ import Immutable from 'immutable';
 
 import selector from '../selector';
 import engine from '../gameEngine';
+import heuristics from './heuristics';
 
 function getOptions(state) {
   
@@ -14,10 +15,18 @@ function getOptions(state) {
     const activePlayer = transformedState.players.find(player => player.get('isActive'));
 
     const buyOptions = [];
-    for(let i = activePlayer.get('minBid') ; i <= activePlayer.get('maxBid'); i++) {
-      buyOptions.push(Immutable.fromJS({choice: 'raiseTo', amount: i}));
+    for(let amount = activePlayer.get('minBid') ; amount <= activePlayer.get('maxBid'); amount++) {
+      const predictedValue = heuristics.predictBidOptionValue(transformedState, amount);
+      buyOptions.push(Immutable.fromJS({choice: 'raiseTo', amount, predictedValue}));
     }
-    return [Immutable.fromJS({choice: 'pass'}), ...buyOptions];
+    const passOption = Immutable.fromJS({
+      choice: 'pass', 
+      predictedValue: heuristics.predictPassOptionValue(transformedState)
+    });
+
+    const bidOptions = [passOption, ...buyOptions];
+
+    return bidOptions.sort((a, b) => b.predictedValue - a.predictedValue).slice(0, 3); // Only return most promising 3!
 
   } else {
 
@@ -44,24 +53,35 @@ function shouldRecurse(transformedState, depth) {
   return depth < 4;
 }
 
+// End state score
 function getStateScore(transformedState) {
   const highScore = transformedState.players.reduce((highScore, player) => {
     return player.get('totalMoney') > highScore ? player.get('totalMoney') : highScore
   }, 0);
-  return transformedState.players.map(player => {
-    return player.get('totalMoney') - highScore;
-  })
-  .toJS();
+  return transformedState.players.reduce(player => player.get('totalMoney') - highScore);
 }
 
+// Pre end state scoring
 function getStateHeuristicScore(transformedState) {
-  // TODO Heuristic!
-  //console.log("Heuristic time!", transformedState);
-  return transformedState.players.map(player => 0);
+  switch(transformedState.phase) {
+    case 'buy':
+      return heuristics.predictBuyPhaseScore(transformedState);
+    case 'sell':
+      return heuristics.predictSellPhaseScore(transformedState);
+  }
 }
 
-function compareStateScores(state, scoreA, scoreB) {
-  return scoreB - scoreA;
+function compareStateScores(transformedState, scoreA, scoreB, depth) {
+  
+  let currentPlayerIndex = 0;
+  transformedState.players.forEach((player, index) => {
+    if(player.get('playerId') == transformedState.activeAiId) {
+      currentPlayerIndex = index;
+    }
+  });
+
+  const diff = scoreB.get(currentPlayerIndex) - scoreA.get(currentPlayerIndex);
+  return !diff ? diff : Math.random() - .5;
 }
 
 function transitionState(state, option) {
@@ -78,13 +98,13 @@ function transitionState(state, option) {
 function minimax(state, depth = 0) {
 
   const options = getOptions(state);
+  const transformedState = selector(state);
 
   const optionScores = options.map(option => {
     const score = minimaxRecursor(transitionState(state, option), depth);
     return {option, score}
   })
-  .sort((a, b) => compareStateScores(state, a.score, b.score));
-  const scores = optionScores.map(op => op.score);
+  .sort((a, b) => compareStateScores(transformedState, a.score, b.score, depth));
 
   return optionScores[0];
 }
