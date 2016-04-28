@@ -49,8 +49,9 @@ function isStateTerminal(transformedState) {
   return transformedState.phase === 'postgame';
 }
 
+// Stop at the end of the buy phase
 function shouldRecurse(transformedState, depth) {
-  return depth < 4;
+  return depth < 5 && transformedState.history.getIn([0, 'action']) !== 'sellPhaseStarts';
 }
 
 // End state score
@@ -81,7 +82,7 @@ function compareStateScores(transformedState, scoreA, scoreB, depth) {
   });
 
   const diff = scoreB.get(currentPlayerIndex) - scoreA.get(currentPlayerIndex);
-  return !diff ? diff : Math.random() - .5;
+  return diff != 0 ? diff : (Math.random() - .5);
 }
 
 function transitionState(state, option) {
