@@ -12,7 +12,7 @@ function requestAction() {
       const action = ai(state);
       switch(action.choice) {
         case 'pass':
-          dispatch(apiActions.passBet(action.playerId));
+          dispatch(apiActions.passBet());
           break;
         case 'raiseTo':
           dispatch(apiActions.makeBet(action.amount));
