@@ -39,7 +39,7 @@ function makeDecision(state) {
 
       let value;
       if(bid === 0) { // Will pass
-        value = expectedCardValues.first() / 2 + Math.floor(currentPlayer.get('currentBid') / 2);
+        value = (expectedCardValues.first() - expectedCardValues.unshift().first()) / 2 + Math.floor(currentPlayer.get('currentBid') / 2);
       } else if(bid >= expectedHighBid) { // Will win
         value = expectedCardValues.last() / 2 - bid;
       } else {
