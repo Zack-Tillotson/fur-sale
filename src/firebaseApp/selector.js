@@ -106,7 +106,7 @@ export default (state) => {
       let ownCards = player.get('buyCards').map(card => isSelf ? card : 0).sort();
 
       let totalMoney = money;
-      if(phase === 'gameover') {
+      if(phase === 'postgame') {
         totalMoney = player.get('sellCards').reduce((soFar, card) => soFar + card, money);
       }
       
