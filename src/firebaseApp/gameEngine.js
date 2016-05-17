@@ -44,6 +44,7 @@ function getInitialBuyPhaseState(seed, sessions) {
   util.shuffle(rng, cards);
 
   const phase = 'buy';
+  const roundNum = 1;
   const currentPlayer = 0;
   const visibleCards = cards.slice(0, players.length).sort((a,b) => a-b);
   const deckCards = cards.slice(players.length);
@@ -52,9 +53,10 @@ function getInitialBuyPhaseState(seed, sessions) {
   const rngUse = rng.getUseCount();
 
   const state = Immutable.fromJS({
-    phase, 
-    table: {deckCards, visibleCards, goneCardCount}, 
-    players, 
+    phase,
+    roundNum,
+    table: {deckCards, visibleCards, goneCardCount},
+    players,
     currentPlayer,
     rngUse,
     diffs: [{
@@ -92,6 +94,7 @@ function getInitialSellPhaseState(state, rng) {
   const cards = Immutable.fromJS(cardsAry);
 
   const phase = 'sell';
+  const roundNum = 1;
   const visibleCards = cards.take(players.size).sort((a,b) => a-b);
   const deckCards = cards.skip(players.size);
   const goneCardCount = GONE_CARD_COUNTS[players.size] || 0;
@@ -102,6 +105,7 @@ function getInitialSellPhaseState(state, rng) {
 
   state = state.merge({
     phase,
+    roundNum,
     table: Immutable.Map({deckCards, visibleCards, goneCardCount}),
     players,
     diffs,
@@ -191,7 +195,7 @@ function applyBuyDecisionToPass(rng, decision, state) {
   
   let endOfRound = false;
   if(activeBidders.length === 1) { // Round over!
-    
+
     const winningPlayer = activeBidders[0];
     const winningBid = state.getIn(['players', winningPlayer, 'currentBid']);
     state = cashOutBid(state, winningPlayer, winningBid);
@@ -214,6 +218,8 @@ function applyBuyDecisionToPass(rng, decision, state) {
   })));
 
   if(endOfRound) {
+
+    state = state.update('roundNum', (round) => round + 1);
 
     const cardsInDeck = state.getIn(['table', 'deckCards']).size - state.getIn(['table', 'goneCardCount']);
     const playerCount = state.get('players').size;
@@ -286,6 +292,8 @@ function applySellDecision(decision, state) {
         return player;
       }));
     }
+
+    state = state.update('roundNum', (round) => round + 1);
 
     state = state.updateIn(['diffs'], diffs => diffs.push(Immutable.fromJS({
       action: 'sell',

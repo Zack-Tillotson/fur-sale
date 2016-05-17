@@ -10,6 +10,7 @@ export default (state) => {
 
   // Phase title
   const phase = engine.get('phase');
+  const roundNum = engine.get('roundNum');
 
   // Table
   const visibleCards = engine.getIn(['table', 'visibleCards']);
@@ -30,7 +31,6 @@ export default (state) => {
 
   // Players
   let players;
-  let roundNum = 1;
   let activeAiId = null;
   if(phase === 'buy') {
 
@@ -62,7 +62,6 @@ export default (state) => {
       const maxBid = player.get('money');
 
       const ownCards = player.get('buyCards').map(card => isSelf ? card : 0);
-      roundNum = 1 + ownCards.size;
       
       return player.merge({
         isSelf, isActive, isOwner, prevAction, ownCards, money, minBid, maxBid

@@ -67,19 +67,19 @@ component {
   }
 
   .cardRound.dealCardRound-enter {
-    top: 100px;
+    position: absolute;
   }
 
   .cardRound.dealCardRound-enter-active {
-    animation: slidInCard 2s;
+    animation: slideInCard 1s;
   }
 
   .cardRound.dealCardRound-leave {
-    top: 0px;
+    animation: slideOutCard 1s;
   }
 
   .cardRound.dealCardRound-leave-active {
-    animation: slideOutCard 2s;
+    animation: slideOutCard 1s;
   }
 
   .card.dealCard-appear, .card.dealCard-enter {

@@ -22,6 +22,7 @@ const defaultState = Immutable.fromJS({
   engine: {
     rngUse: 0, // The number of times the RNG has been used since seeding
     phase: 'pregame', // [pregame, buy, sell, postgame] From game mode and decisions
+    roundNum: 0, // 1 - n
     table: {
       deckCards: [], // The cards left in the deck
       goneCardCount: 0, // How many cards from the deck have been secretely discarded

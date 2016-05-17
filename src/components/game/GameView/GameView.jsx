@@ -56,7 +56,7 @@ const GameView = React.createClass({
   activeAiActionRequest: null, // Timeout ID for AI action
 
   startRequestAiAction() {
-    this.activeAiActionRequest = setTimeout(this.requestAiAction, 1000);
+    this.activeAiActionRequest = setTimeout(this.requestAiAction, 1500);
   },
 
   requestAiAction() {

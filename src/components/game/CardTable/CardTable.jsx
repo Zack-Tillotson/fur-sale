@@ -12,7 +12,7 @@ export default React.createClass({
     visibleCardsGone: React.PropTypes.number.isRequired,
     phase: React.PropTypes.string.isRequired,
     cardClickHandler: React.PropTypes.func,
-    cardRound: React.PropTypes.oneOf(['large', 'small']),
+    roundNum: React.PropTypes.number,
   },
 
   getDefaultProps() {
@@ -34,18 +34,18 @@ export default React.createClass({
       <InlineCss stylesheet={styles} componentName="component" className={sizeClass}>
         <ReactCSSTransitionGroup
           transitionName="dealCardRound"
-          transitionEnterTimeout={2000}
-          transitionLeaveTimeout={2000}>
-            <div className="cardRound" key={this.props.cardRound}>
+          transitionEnterTimeout={1000}
+          transitionLeaveTimeout={1000}>
+            <div className="cardRound" key={this.props.roundNum}>
               <ReactCSSTransitionGroup
                 transitionName="dealCard"
-                transitionEnterTimeout={2000}
+                transitionEnterTimeout={1000}
                 transitionAppear={true}
-                transitionAppearTimeout={2000}
-                transitionLeaveTimeout={2000}>
+                transitionAppearTimeout={1000}
+                transitionLeaveTimeout={1000}>
                 {this.props.visibleCards.sort().map((card, index) => (
                   <Card 
-                    key={`${this.props.roundNum} ${card} ${index}`}
+                    key={`${this.props.roundNum}:${this.props.visibleCards.size - index}`}
                     value={card}
                     size={this.props.size}
                     type={this.props.phase}
