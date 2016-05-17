@@ -52,7 +52,7 @@ export default React.createClass({
     for(let i = 0 ; i < placeHolderCount ; i++) {
       ret.push(
         <tr key={'placeholder ' + i}>
-          <td colSpan={3} className="placeholder">
+          <td colSpan={5} className="placeholder">
             Empty
           </td>
         </tr>
@@ -133,8 +133,7 @@ export default React.createClass({
             <tr>
               <td className="isOwner"></td>
               <td className="playerName">Name</td>
-              <td className="playerColor">Color</td>
-              <td className="playerPersona">Persona</td>
+              <td className="playerColorAndPersona" colSpan={2}>You</td>
               <td className="connectionStatus"></td>
             </tr>
           </thead>

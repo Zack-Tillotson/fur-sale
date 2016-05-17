@@ -6,6 +6,7 @@ component {
   table.sessionTable {
     text-align: left;
     width: 100%;
+    font-size: 24px;
 
     td {
       padding: 5px;
@@ -22,9 +23,21 @@ component {
     .isSelf {
       background: #DCF0FF;
 
+      & > * {
+        padding-left: 10px;
+      }
+
       .playerColor, .playerPersona, .playerName {
         cursor: pointer;
       }
+    }
+
+    .playerColorAndPersona {
+      text-align: center;
+    }
+
+    .playerColor, .playerPersona {
+      width: 40px;
     }
 
     .placeholder {
