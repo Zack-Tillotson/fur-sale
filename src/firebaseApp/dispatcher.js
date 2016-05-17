@@ -8,8 +8,8 @@ export default function(dispatch, props) {
 
 	return {
 
-		createGame(onSuccess) {
-      return dispatch(apiActions.createGame());
+		createGame(isPublic) {
+      return dispatch(apiActions.createGame(isPublic));
     },
 
     joinGame(gameId) {

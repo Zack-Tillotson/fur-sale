@@ -17,7 +17,7 @@ const NewGameForm = React.createClass({
   },
 
   createGameAndNavigate() {
-    const isPublic = this.refs.publicToggleInput.value;
+    const isPublic = this.refs.publicToggleInput.checked;
     this.props.createGame(isPublic).then(this.navigateToGame);
   },
 

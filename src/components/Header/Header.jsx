@@ -21,7 +21,7 @@ export default React.createClass({
       <InlineCss stylesheet={styles} componentName="component">
         <header>
           <Link to="/">
-            <h1>Fur Sale!</h1>
+            <img src="/assets/title.png" alt="Fur Sale!" />
           </Link>
           {this.props.preferencesOpen && (
             <Link to="/">

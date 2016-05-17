@@ -14,6 +14,14 @@ const colors = [
   '#24FFFF', // Teal
   '#C97910', // Brown
   '#FFBAEA', // Pink
+  '#FF6EB1', // Etc below...
+  '#B8BBCF',
+  '#E1C9FF',
+  '#FFC9CC',
+  '#C9FFDE',
+  '#FFF9C9',
+  '#CDF2AA',
+  '#D6AAF2',
 ];
 const personas = [
   '/assets/personas/awwww.png',
@@ -200,7 +208,8 @@ function createGame(isPublic = true) {
       .then(id => {
         if(isPublic) {
           return utils.connect('publicGames')
-          .push({createdAt, isPublic, gameId: id})
+          .child(id)
+          .set({createdAt, isPublic, gameId: id})
           .then(ref => {
             return Promise.resolve(id);
           });
@@ -244,7 +253,7 @@ function joinGame() {
       } else {
 
         const {authInfo} = firebaseSelector(getState());
-        const name = authInfo[authInfo.provider].displayName || 'Anonymous Player';
+        const name = authInfo[authInfo.provider].displayName || 'Anonymous';
         const color = colors[parseInt(Math.random()*colors.length)];
         const persona = personas[parseInt(Math.random()*personas.length)];
         
@@ -280,6 +289,7 @@ function startGame() {
     .child('gameMode')
     .set('playing', error => {
       if(!error) {
+        utils.connect('publicGames').child(gameId).remove(); // Best effort
         success(dispatch, event);
       } else {
         failure(dispatch, event, error.code)

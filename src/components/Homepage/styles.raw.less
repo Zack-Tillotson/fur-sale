@@ -1,10 +1,9 @@
 container {
   .headline {
-    position: relative;
-
-    img {
-      max-width: 100%;
-    }
+    min-height: 500px;
+    min-width: 100%;
+    background: darkblue url('/assets/headline.png') no-repeat no-repeat center center;
+    background-size: cover;
   }
 
   .gameControls {
@@ -20,5 +19,21 @@ container {
 
   a {
     display: block;
+  }
+}
+
+@media (max-width: 800px) {
+  container {
+    .headline {
+      min-height: 275px;
+    }
+  }
+}
+
+@media (max-width: 400px) {
+  container {
+    .headline {
+      min-height: 200px;
+    }
   }
 }

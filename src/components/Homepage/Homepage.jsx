@@ -14,9 +14,7 @@ const Homepage = React.createClass({
     return (
       <Page showHeader={false}>
         <InlineCss stylesheet={styles} componentName="container">
-          <div className="headline">
-            <img src="/assets/headline.png" />
-          </div>
+          <div className="headline"></div>
           <div className="gameControls">
             <CreateOrJoinControls />
           </div>
