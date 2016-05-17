@@ -35,8 +35,8 @@ const GameView = React.createClass({
     if(!this.props.firebase.isLoggedIn && nextProps.firebase.isLoggedIn) {
       this.connectToFirebaseData();
     }
-    if(nextProps.furSale.activeAiId && this.props.furSale.activeAiId !== nextProps.furSale.activeAiId) {
-      this.props.requestAiAction();
+    if(nextProps.furSale.activeAiId && !this.activeAiActionRequest) {
+      this.startRequestAiAction();
     }
   },
 
@@ -51,6 +51,19 @@ const GameView = React.createClass({
 
   componentWillUnmount() {
     this.props.endSyncGameData(this.props.params.gameId);
+  },
+
+  activeAiActionRequest: null, // Timeout ID for AI action
+
+  startRequestAiAction() {
+    this.activeAiActionRequest = setTimeout(this.requestAiAction, 1000);
+  },
+
+  requestAiAction() {
+    if(this.props.furSale.isGameOwner) {
+      this.props.requestAiAction();
+      this.activeAiActionRequest = null;
+    }
   },
 
   render() {
