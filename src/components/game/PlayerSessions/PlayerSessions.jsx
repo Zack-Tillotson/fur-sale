@@ -23,31 +23,6 @@ export default React.createClass({
     }
   },
 
-  getPlayerName(session) {
-    const name = session.get('name');
-    if(session.get('isSelf')) {
-      if(this.state.editName) {
-        return (
-          <form onSubmit={this.playerNameFormSubmitHandler}>
-            <div className="editing">
-              <input type="text" defaultValue={name} ref="playerNameInput" on />
-              <button className="icon saveButon">💾</button>
-            </div>
-          </form>
-        );
-      } else {
-        return (
-          <div className="clickToEdit" onClick={this.toggleEditName}>
-            {name}
-            <span className="icon editIcon">✎</span>
-          </div>
-        );
-      }
-    } else {
-      return name;
-    }
-  },
-
   playerNameFormSubmitHandler(event) {
     event.preventDefault();
     this.updatePlayerName();
@@ -57,6 +32,14 @@ export default React.createClass({
     const value = this.refs.playerNameInput.value;
     this.props.updatePlayerName(value);
     this.toggleEditName(false);
+  },
+
+  updatePlayerColor(color) {
+    this.props.updatePlayerColor(color);
+  },
+
+  updatePlayerPersona(persona) {
+    this.props.updatePlayerPersona(persona);
   },
 
   toggleEditName(editName = !this.state.editName) {
@@ -78,6 +61,66 @@ export default React.createClass({
     return ret;
   },
 
+  getPlayerName(session) {
+    const name = session.get('name');
+    if(session.get('isSelf')) {
+      if(this.state.editName) {
+        return (
+          <form onSubmit={this.playerNameFormSubmitHandler}>
+            <div className="editing">
+              <input type="text" defaultValue={name} ref="playerNameInput" on />
+              <button className="icon saveButon">💾</button>
+            </div>
+          </form>
+        );
+      } else {
+        return (
+          <div className="playerName clickToEdit" onClick={this.toggleEditName}>
+            {name}
+            <span className="icon editIcon">✎</span>
+          </div>
+        );
+      }
+    } else {
+      return name;
+    }
+  },
+
+
+  getPlayerColor(session) {
+    const color = session.get('color');
+    const compProps = {};
+
+    const isSelf = session.get('isSelf');
+    if(isSelf) {
+      compProps.onClick = this.updatePlayerColor.bind(this, color);
+    }
+     
+    return (
+      <span 
+        className="colorBox" 
+        style={{backgroundColor: session.get('color')}}
+        {...compProps} />
+    );
+  },
+
+  getPlayerPersona(session) {
+    const persona = session.get('persona');
+    const compProps = {};
+
+    const isSelf = session.get('isSelf');
+    if(isSelf) {
+      compProps.onClick = this.updatePlayerPersona.bind(this, persona);
+    }
+     
+    return (
+      <span 
+        className="persona" 
+        style={{backgroundImage: `url('${session.get('persona')}')`}} 
+        {...compProps} />
+    );
+  },
+
   render() {
 
     const {sessions} = this.props;
@@ -90,6 +133,8 @@ export default React.createClass({
             <tr>
               <td className="isOwner"></td>
               <td className="playerName">Name</td>
+              <td className="playerColor">Color</td>
+              <td className="playerPersona">Persona</td>
               <td className="connectionStatus"></td>
             </tr>
           </thead>
@@ -106,6 +151,12 @@ export default React.createClass({
                   <td className={`${isOwnerClass} ${isAiClass}`}></td>
                   <td className="playerName">
                     {this.getPlayerName(session)}
+                  </td>
+                  <td className="playerColor">
+                    {this.getPlayerColor(session)}
+                  </td>
+                  <td className="playerPersona">
+                    {this.getPlayerPersona(session)}
                   </td>
                   <td className="connectionStatus">
                     {session.get('connectionStatus') === 'offline' && 'offline'}

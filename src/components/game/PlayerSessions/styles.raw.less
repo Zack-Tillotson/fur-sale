@@ -21,6 +21,10 @@ component {
 
     .isSelf {
       background: #DCF0FF;
+
+      .playerColor, .playerPersona, .playerName {
+        cursor: pointer;
+      }
     }
 
     .placeholder {
@@ -31,6 +35,22 @@ component {
 
     .icon {
       float: right;
+    }
+
+    .colorBox {
+      width: 40px;
+      display: inline-block;
+      height: 100%;
+      border-radius: 5px;
+    }
+
+    .persona {
+      width: 40px;
+      display: inline-block;
+      height: 100%;
+      background: #fff no-repeat no-repeat center center;
+      background-size: cover;
+      border-radius: 150px;
     }
 
     .owner {

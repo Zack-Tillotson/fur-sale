@@ -72,7 +72,9 @@ const GameView = React.createClass({
                   <PlayerSessions 
                     canJoinGame={this.props.furSale.canJoinGame}
                     sessions={this.props.furSale.sessions} 
-                    updatePlayerName={this.props.updatePlayerName} />
+                    updatePlayerName={this.props.updatePlayerName}
+                    updatePlayerColor={this.props.updatePlayerColor}
+                    updatePlayerPersona={this.props.updatePlayerPersona} />
 
                   <PregameActions
                     isOwner={this.props.furSale.isGameOwner}

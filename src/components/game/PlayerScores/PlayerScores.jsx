@@ -12,10 +12,10 @@ export default React.createClass({
     return (
       <InlineCss stylesheet={styles} componentName="component">
         <div key={1} className={"player rank1"}>
-          <div className="placement">1</div>
-          <div className="playerIcon defaultIcon"></div>
+          <div className="placement" style={{backgroundColor: firstPlayer.get('color')}}>1</div>
+          <div className="playerIcon" style={{backgroundImage: `url('${firstPlayer.get('persona')}')`, backgroundColor: firstPlayer.get('color')}}></div>
           <div className="playerName">{firstPlayer.get('name')}</div>
-          <div className="playerScore">${firstPlayer.get('totalMoney')}</div>
+          <div className="playerScore" style={{backgroundColor: firstPlayer.get('color')}}>${firstPlayer.get('totalMoney')}</div>
         </div>
         <div className="losers">
           {players.shift().map((player, index) => {
@@ -23,7 +23,7 @@ export default React.createClass({
             return (
               <div key={rank} className={"player rank" + rank}>
                 <div className="placement">{rank}</div>
-                <div className="playerIcon defaultIcon"></div>
+                <div className="playerIcon" style={{backgroundImage: `url('${player.get('persona')}')`, borderColor: player.get('color')}}></div>
                 <div className="playerName">{player.get('name')}</div>
                 <div className="playerScore">${player.get('totalMoney')}</div>
               </div>

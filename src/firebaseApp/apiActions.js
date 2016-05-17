@@ -4,6 +4,33 @@ import selector from './selector';
 import utils from '../firebase/utils';
 import Firebase from 'firebase';
 
+const colors = [
+  '#FF3333', // Red
+  '#33A0FF', // Blue
+  '#EDFF4D', // Yellow
+  '#9A4DFF', // Purple
+  '#23EB3E', // Green
+  '#FFAA21', // Orange
+  '#24FFFF', // Teal
+  '#C97910', // Brown
+  '#FFBAEA', // Pink
+];
+const personas = [
+  '/assets/personas/awwww.png',
+  '/assets/personas/bah.png',
+  '/assets/personas/happyhappy.png',
+  '/assets/personas/hihi.png',
+  '/assets/personas/nyah.png',
+  '/assets/personas/ohnoes.png',
+  '/assets/personas/omghi.png',
+  '/assets/personas/outland.png',
+  '/assets/personas/pinko.png',
+  '/assets/personas/sweepy.png',
+  '/assets/personas/whysad.png',
+  '/assets/personas/catstevens.png',
+];
+const aiPersona = '/assets/personas/robokitten.png';
+
 // This folder contains thunks for interacting with Fur Sale on Firebase.
 
 // Decorators
@@ -218,12 +245,16 @@ function joinGame() {
 
         const {authInfo} = firebaseSelector(getState());
         const name = authInfo[authInfo.provider].displayName || 'Anonymous Player';
+        const color = colors[parseInt(Math.random()*colors.length)];
+        const persona = personas[parseInt(Math.random()*personas.length)];
         
         return {
           connectionStatus: 'online',
           joinedAt: Firebase.ServerValue.TIMESTAMP, 
           activeAt: Firebase.ServerValue.TIMESTAMP,
           name,
+          color,
+          persona,
         }
 
       }
@@ -270,9 +301,13 @@ function addAiPlayer() {
       .child(`ai:${parseInt(Math.random()*1000000)}`);
 
     const name = 'AI Player';
+    const color = colors[parseInt(Math.random()*colors.length)];
+    const persona = aiPersona;
 
     ref.set({
       name,
+      color,
+      persona,
       isAI: true,
       connectionStatus: 'online',
       joinedAt: Firebase.ServerValue.TIMESTAMP, 
@@ -358,12 +393,26 @@ function sellCard(card, playerId) {
   }
 }
 
-function updateSessionInfo(info) {
+function translateInfo(info) {
+  const ret = {...info};
+  if(info.color) {
+    const colorIndex = colors.indexOf(info.color);
+    ret.color = colors[(colorIndex + 1) % colors.length]
+  }
+  if(info.persona) {
+    const personaIndex = personas.indexOf(info.persona);
+    ret.persona = personas[(personaIndex + 1) % personas.length]
+  }
+  return ret;
+}
+
+function updateSessionInfo(updatedInfo) {
   return function(dispatch, getState) {
 
     const event = 'updateSessionInfo';
     const uid = requireLogin(event, dispatch, getState);
     const gameId = requireGame(event, dispatch, getState);
+    const info = translateInfo(updatedInfo);
 
     utils.connect('games')
     .child(gameId)

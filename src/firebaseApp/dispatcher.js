@@ -2,6 +2,8 @@ import actions from './actions';
 import apiActions from './apiActions';
 import aiActions from './aiActions';
 
+const persona = ['default'];
+
 export default function(dispatch, props) {
 
 	return {
@@ -40,6 +42,14 @@ export default function(dispatch, props) {
 
     updatePlayerName(name) {
       dispatch(apiActions.updateSessionInfo({name}));
+    },
+
+    updatePlayerColor(color) {
+      dispatch(apiActions.updateSessionInfo({color}));
+    },
+
+    updatePlayerPersona(persona) {
+      dispatch(apiActions.updateSessionInfo({persona}));
     },
 
     beginSyncPublicGameList() {
