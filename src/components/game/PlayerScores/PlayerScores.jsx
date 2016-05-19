@@ -2,6 +2,8 @@ import React from 'react';
 import InlineCss from "react-inline-css";
 import styles from './styles.raw.less';
 
+import Persona from '../Persona';
+
 export default React.createClass({
 
   render() {
@@ -11,15 +13,28 @@ export default React.createClass({
 
     return (
       <InlineCss stylesheet={styles} componentName="component">
-        <div key={1} className={"player rank1"}>
-          <div className="placement" style={{backgroundColor: firstPlayer.get('color')}}>1</div>
-          <div className="playerIcon" style={{backgroundImage: `url('${firstPlayer.get('persona')}')`, backgroundColor: firstPlayer.get('color')}}></div>
-          <div className="playerName">{firstPlayer.get('name')}</div>
-          <div className="playerScore" style={{backgroundColor: firstPlayer.get('color')}}>${firstPlayer.get('totalMoney')}</div>
-        </div>
+        <Persona
+          key={1}
+          className="rank1" 
+          highlightLevel="max"
+          name={firstPlayer.get('name')}
+          persona={firstPlayer.get('persona')}
+          personaColor={firstPlayer.get('color')}
+          leftBubble={"1"}
+          rightBubble={firstPlayer.get('totalMoney')} />
         <div className="losers">
           {players.shift().map((player, index) => {
             const rank = index + 2;
+            return (
+              <Persona
+                key={rank}
+                className={'rank' + rank}
+                name={player.get('name')}
+                persona={player.get('persona')}
+                personaColor={player.get('color')}
+                leftBubble={`${rank}`}
+                rightBubble={player.get('totalMoney')} />
+            );
             return (
               <div key={rank} className={"player rank" + rank}>
                 <div className="placement">{rank}</div>

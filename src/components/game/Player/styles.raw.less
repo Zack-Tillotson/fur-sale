@@ -5,10 +5,8 @@ component {
   flex-grow: 1;
   max-width: 400px;
   min-width: 260px;
-  background: #fff;
-  box-shadow: 3px 3px 9px #ccc;
   margin: 5px;
-  transition: background 1s linear;
+  transition: background .5s linear;
 
   .animatedEllipses {
 
@@ -126,26 +124,6 @@ component {
       color: #999;
     }
   }
-
-  .playerMarker {
-
-    &:before {
-      position: absolute;
-      top: 7px;
-      left: 0px;
-      content: '▶';
-      color: #fff;
-    }
-
-    &:after {
-      position: absolute;
-      top: 7px;
-      right: 0px;
-      content: '◀';
-      color: #fff;
-    }
-  }
-
 }
 
 @media (max-width: 600px) {

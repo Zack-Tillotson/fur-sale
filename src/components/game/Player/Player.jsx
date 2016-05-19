@@ -3,6 +3,7 @@ import InlineCss from "react-inline-css";
 import styles from './styles.raw.less';
 
 import CardTable from '../CardTable';
+import Persona from '../Persona';
 
 export default React.createClass({
 
@@ -77,14 +78,16 @@ export default React.createClass({
         stylesheet={styles} 
         componentName="component" 
         className={`${isActiveClass} ${isSelfClass} ${isOwnerClass} ${isPassed}`}>
-        <div className="playerName">
-          {player.get('name')}
-        </div>
+        <Persona
+          key={1}
+          name={player.get('name')}
+          highlightLevel={player.get('isActive') ? 'high' : 'standard'}
+          persona={player.get('persona')}
+          personaColor={player.get('color')}
+          rightBubble={player.get('isSelf') && ('$' + player.get('money'))} />
+        
         <div className="prevAction">
           {actionText}
-        </div>
-        <div className="money">
-          {player.get('isSelf') && `$${player.get('money')}`}
         </div>
         {player.get('isSelf') && this.props.phase === 'buy' && (
           <div className="controls">
@@ -129,10 +132,7 @@ export default React.createClass({
             <CardTable phase="sell" size="small" visibleCards={player.get('sellCards')} visibleCardsGone={0} />
           </div>
         )}
-
-        {player.get('isActive') && (
-          <div className="playerMarker"></div>
-        )}
+        
       </InlineCss>
     );
   }

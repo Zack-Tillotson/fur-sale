@@ -1,0 +1,134 @@
+component {
+
+  height: 150px;
+  position: relative;
+  margin: 5px 15px;
+  overflow: hidden;
+  text-align: center;
+
+  .playerName {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    right: 50%;
+    margin-left: -125px;
+    margin-right: -125px;
+    background: #fff;
+    border: solid 1px #666;
+    padding: 3px;
+    z-index: 3;
+  }
+
+  .playerIcon {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    right: 50%;
+    margin-left: -47px;
+    width: 100px;
+    height: 100px;
+    border-radius: 200px;
+    border: solid 2px #000;
+    z-index: 1;
+    background: white no-repeat no-repeat center center;
+    background-size: contain;
+  }
+
+  .rightBubble {
+    border: solid 2px #000;
+    border-radius: 150px;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    right: 50%;
+    margin-left: 50px;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    z-index: 2;
+    background: #fff;
+  }
+
+  .leftBubble {
+    border: solid 2px #000;
+    border-radius: 150px;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    right: 50%;
+    margin-left: -95px;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    z-index: 2;
+    background: #fff;
+  }
+
+  &.high {
+    .playerIcon, .rightBubble, .leftBubble {
+      border-color: #ccc;
+    }
+  }
+
+  &.max {
+    background: url('/assets/rank1background.jpg') center center no-repeat no-repeat;
+    background-size: contain;
+
+    .playerIcon {
+      width: 140px;
+      height: 140px;
+      margin-left: -75px;
+    }
+
+    .rightBubble {
+      width: 75px;
+      height: 75px;
+      bottom: 40px;
+      margin-left: 120px;
+      line-height: 75px;
+      font-size: 24px;
+    }
+
+    .leftBubble {
+      width: 75px;
+      height: 75px;
+      bottom: 40px;
+      margin-left: -175px;
+      line-height: 75px;
+      font-size: 36px;
+    }
+  }
+}
+
+
+@media (max-width: 600px) {
+  component {
+
+    &.max {
+
+      .playerIcon {
+        width: 110px;
+        height: 110px;
+        margin-left: -55px;
+      }
+
+      .rightBubble {
+        width: 60px;
+        height: 60px;
+        bottom: 30px;
+        margin-left: 70px;
+        line-height: 60px;
+        font-size: 20px;
+      }
+
+      .leftBubble {
+        width: 60px;
+        height: 60px;
+        bottom: 30px;
+        margin-left: -130px;
+        line-height: 60px;
+        font-size: 32px;
+      }
+    }
+  }
+}
