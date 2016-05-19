@@ -1,6 +1,7 @@
 import React from 'react';
 import InlineCss from "react-inline-css";
 
+import Page from '../Page';
 import LoginForm from '../LoginForm';
 import FirebaseStatus from '../FirebaseStatus';
 
@@ -10,10 +11,12 @@ const Preferences = React.createClass({
 
   render() {
     return (
-      <InlineCss stylesheet={styles} componentName="container">
-        <LoginForm />
-        <FirebaseStatus />
-      </InlineCss>
+      <Page>
+        <InlineCss stylesheet={styles} componentName="container">
+          <LoginForm />
+          <FirebaseStatus />
+        </InlineCss>
+      </Page>
     );
   }
 });
