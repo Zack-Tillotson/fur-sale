@@ -98,6 +98,33 @@ component {
       font-size: 36px;
     }
   }
+
+  &.mini {
+    height: 75px;
+
+    .playerIcon {
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      left: 0;
+      right: 0;
+      border: none;
+      border-radius: 0;
+    }
+
+    .leftBubble {
+      font-size: 16px;
+      line-height: 15px;
+
+      &:before {
+        content: ' ';
+        height: 10px;
+        display: block;
+      }
+    }
+  }
 }
 
 

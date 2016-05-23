@@ -66,9 +66,9 @@ export default React.createClass({
 
     let actionText = '';
     if(action === 'pass') {
-      actionText = 'Passes';
+      actionText = 'I pass';
     } else if(action === 'bet') {
-      actionText = 'Bids $' + player.get('currentBid');
+      actionText = 'I bid $' + player.get('currentBid');
     }
 
     const bidButtonDisabled = !player.get('isActive') || this.state.bidAmount > player.get('maxBid');
@@ -82,13 +82,12 @@ export default React.createClass({
           key={1}
           name={player.get('name')}
           highlightLevel={player.get('isActive') ? 'high' : 'standard'}
+          className="mini"
           persona={player.get('persona')}
           personaColor={player.get('color')}
-          rightBubble={player.get('isSelf') && ('$' + player.get('money'))} />
+          leftBubble={actionText}
+          rightBubble={player.get('isSelf') && ('$' + player.get('money')) || ''} />
         
-        <div className="prevAction">
-          {actionText}
-        </div>
         {player.get('isSelf') && this.props.phase === 'buy' && (
           <div className="controls">
             <div className="betContainer">
@@ -127,7 +126,7 @@ export default React.createClass({
           </div>
         )}
 
-        {player.get('isSelf') && this.props.phase === 'sell' && (
+        {player.get('isSelf') && this.props.phase === 'sell' && player.get('sellCards').size > 0 && (
           <div className="cardList">
             <CardTable phase="sell" size="small" visibleCards={player.get('sellCards')} visibleCardsGone={0} />
           </div>
