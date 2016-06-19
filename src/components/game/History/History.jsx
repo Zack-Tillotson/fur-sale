@@ -168,6 +168,9 @@ const History = React.createClass({
         <div className="reviewItems">
           <ReactCSSTransitionGroup transitionName="review" transitionAppear={true} transitionAppearTimeout={5000} transitionEnterTimeout={5000} transitionLeaveTimeout={5000}>
             {this.props.history.reverse().take(1).map(historyItem => {
+              if(historyItem.get('action') !== 'sell') {
+                return null;
+              }
               const comp = this.getHistoryItemDetail(historyItem, `key${this.props.history.size}`, 'autoRound');
               return comp;
             })}
