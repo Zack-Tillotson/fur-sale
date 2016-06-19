@@ -16,6 +16,7 @@ import PlayerSessions from '../PlayerSessions';
 import PregameActions from '../PregameActions';
 import History from '../History';
 import PostGame from '../PostGame';
+import HowToPlay from '../../HowToPlay';
 
 const GameView = React.createClass({
 
@@ -66,12 +67,18 @@ const GameView = React.createClass({
     }
   },
 
+  handleHelpClick(shouldShow = true) {
+    this.props.toggleHelpScreen(shouldShow);
+  },
+
   render() {
     return (
-      <Page>
+      <Page showHelpLink={true} onHelpClick={this.handleHelpClick}>
         <InlineCss stylesheet={styles} componentName="component">
 
-          {this.props.firebase.isLoggedIn && (
+          {this.props.furSale.ui.get('showHelp') && (
+            <HowToPlay />
+          ) || this.props.firebase.isLoggedIn && (
 
             <div className="gameContainer">
 
@@ -103,7 +110,9 @@ const GameView = React.createClass({
 
                 <div className="inGame">
 
-                  <History history={this.props.furSale.history} />
+                  <History 
+                    history={this.props.furSale.history}
+                    isYourTurn={this.props.furSale.isSelfActive} />
 
                   <div className="gameInfo">
 
@@ -133,16 +142,16 @@ const GameView = React.createClass({
                 </div>
               )}
 
-          </div>
+            </div>
 
-        )}
+          )}
 
-        {!this.props.firebase.isLoggedIn && (
-          <div className="loginGate">
-            <h1>Please log in before joining this game.</h1>
-            <LoginForm />
-          </div>
-        )}
+          {!this.props.firebase.isLoggedIn && (
+            <div className="loginGate">
+              <h1>Log in to start playing</h1>
+              <LoginForm />
+            </div>
+          )}
 
         </InlineCss>
       </Page>

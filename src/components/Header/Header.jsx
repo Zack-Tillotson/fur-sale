@@ -8,21 +8,24 @@ export default React.createClass({
 
   propTypes: {
     preferencesOpen: React.PropTypes.bool,
+    onHelpClick: React.PropTypes.func,
   },
 
   getDefaultProps() {
     return {
       preferencesOpen: false,
+      onHelpClick: () => {},
     }
+  },
+
+  handleHelpClick() {
+    this.props.onHelpClick();
   },
 
   render() {
     return (
       <InlineCss stylesheet={styles} componentName="component">
         <header>
-          <Link to="/">
-            <img src="/assets/title.png" alt="Fur Sale!" />
-          </Link>
           {this.props.preferencesOpen && (
             <Link to="/">
               <div className="prefLink">
@@ -37,6 +40,14 @@ export default React.createClass({
               </div>
             </Link>
           )}
+          {this.props.showHelpLink && (
+            <span className="helpLink" onClick={this.handleHelpClick}>
+              Help
+            </span>
+          )}
+          <Link to="/">
+            <img src="/assets/title.png" alt="Fur Sale!" />
+          </Link>
         </header>
       </InlineCss>
     );

@@ -12,7 +12,7 @@ const Homepage = React.createClass({
   render() {
 
     return (
-      <Page showHeader={false}>
+      <Page showHeader={true}>
         <InlineCss stylesheet={styles} componentName="container">
           <div className="headline"></div>
           <div className="gameControls">

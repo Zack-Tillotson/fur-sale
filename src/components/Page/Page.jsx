@@ -10,12 +10,16 @@ import Footer from '../Footer';
 const Page = React.createClass({
 
   propTypes: {
-    showHeader: React.PropTypes.bool
+    showHeader: React.PropTypes.bool,
+    showHelpLink: React.PropTypes.bool,
+    onHelpClick: React.PropTypes.func,
   },
 
   getDefaultProps() {
     return {
       showHeader: true,
+      showHelpLink: false,
+      onHelpClick: () => {},
     }
   },
 
@@ -23,7 +27,7 @@ const Page = React.createClass({
     return (
       <InlineCss stylesheet={styles} componentName="component">
         {this.props.showHeader && (
-          <Header />
+          <Header showHelpLink={this.props.showHelpLink} onHelpClick={this.props.onHelpClick} />
         )}
         <Body>
           {this.props.children}

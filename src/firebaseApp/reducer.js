@@ -5,6 +5,9 @@ import actionTypes from './actionTypes';
 import gameReducer from './reducers/game';
 import upstreamReducer from './reducers/upstream';
 import sessionReducer from './reducers/sessions';
+import uiReducer from './reducers/ui';
+
+import {defaultUiState} from './reducers/ui';
 
 import util from './util';
 
@@ -75,6 +78,8 @@ const defaultState = Immutable.fromJS({
 
   sessions: [],
 
+  ui: defaultUiState,
+
 });
 
 export default function(state = defaultState, action) {
@@ -111,6 +116,10 @@ export default function(state = defaultState, action) {
       newState = newState.set('sessions', Immutable.fromJS(sessionReducer(sessions)));
 
       return newState;
+
+    case actionTypes.ui:
+
+      return state.set('ui', uiReducer(state.get('ui'), action));
   
   }
 

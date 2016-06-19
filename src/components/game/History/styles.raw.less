@@ -1,3 +1,14 @@
+@keyframes bounce {
+  0% {left: 0px;}
+  65% {left: 0px;}
+  68% {left: 10px;}
+  71% {left: -10px;}
+  74% {left: 10px;}
+  77% {left: -10px;}
+  80% {left: 10px;}
+  83% {left: 0px;}
+}
+
 component {
   position: relative;
 
@@ -13,6 +24,24 @@ component {
       font-size: 20px;
       color: #000;
       text-shadow: 0 0 5px #fff;
+      user-select: none;
+      -moz-user-select: none;
+      -khtml-user-select: none;
+      -webkit-user-select: none;
+      -o-user-select: none;
+
+      &.selfActive {
+        position: relative;
+        animation-duration: 3s;
+        animation-name: bounce;
+        animation-iteration-count: infinite;
+        font-size: 17px;
+        background: lightgreen;
+        margin-bottom: 5px;
+        border-radius: 3px;
+        padding-top: 5px;
+        animate: left ease-in-out;
+      }
 
       &.buyStart {
         background: #fff url('/assets/history/buy-phase.png') no-repeat center center;
@@ -75,6 +104,23 @@ component {
       font-size: 24px;
       line-height: 50px;
       color: #fff;
+    }
+  }
+
+  .reviewItems > span > .autoRound {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -300px;
+    left: 30px;
+    transition: top 1s ease-in-out;
+
+    &.review-appear, &.review-enter {
+      top: -300px;
+
+      &.review-appear-active, &.review-enter {
+        top: 0px;
+      }
     }
   }
 }

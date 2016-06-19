@@ -37,6 +37,7 @@ const personas = [
   '/assets/personas/whysad.png',
   '/assets/personas/catstevens.png',
 ];
+const aiColor = '#ccc';
 const aiPersona = '/assets/personas/robokitten.png';
 
 // This folder contains thunks for interacting with Fur Sale on Firebase.
@@ -311,7 +312,7 @@ function addAiPlayer() {
       .child(`ai:${parseInt(Math.random()*1000000)}`);
 
     const name = 'AI Player';
-    const color = colors[parseInt(Math.random()*colors.length)];
+    const color = aiColor;
     const persona = aiPersona;
 
     ref.set({

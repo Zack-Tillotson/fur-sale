@@ -32,6 +32,7 @@ export default (state) => {
   // Players
   let players;
   let activeAiId = null;
+  let isSelfActive = false;
   if(phase === 'buy') {
 
     const activePlayer = engine.getIn(['players', engine.get('currentPlayer')]);
@@ -48,6 +49,10 @@ export default (state) => {
       const isSelf = authInfo.uid == player.get('playerId');
       const isActive = player.get('playerId') == activePlayerId;
       const isOwner = player.get('playerId') === ownerId;
+
+      if(isSelf) {
+        isSelfActive = isActive;
+      }
 
       let prevAction;
       if(player.get('hasPassed')) {
@@ -77,6 +82,10 @@ export default (state) => {
       const isSelf = authInfo.uid == player.get('playerId');
       const isActive = player.get('currentOffer') === 0;
       const isOwner = player.get('playerId') === ownerId;
+
+      if(isSelf) {
+        isSelfActive = isActive;
+      }
 
       if(!activeAiId && isActive && player.get('isAI')) {
         activeAiId = player.get('playerId');
@@ -149,6 +158,9 @@ export default (state) => {
   const hasJoinedGame = isLoggedIn && sessions.find(session => session.get('playerId') === authInfo.uid && session.get('connectionStatus') !== 'offline');
   const readyToStart = isLoggedIn && phase === 'pregame' && sessions.size > 1 && sessions.size < 7;
 
+  // UI information
+  const ui = game.get('ui');
+
   return {
     publicGames,
     game,
@@ -166,6 +178,8 @@ export default (state) => {
     hasJoinedGame,
     readyToStart,
     activeAiId,
+    ui,
+    isSelfActive,
   };
   
 }

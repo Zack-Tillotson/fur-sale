@@ -111,14 +111,6 @@ export default React.createClass({
               <button className="pass" disabled={!player.get('isActive')} onClick={this.passClickHandler}>Pass</button>
             </div>
           </div>
-        ) || player.get('isActive') && (
-          <div className="playerStatus">
-            {player.get('connectionStatus') === 'online' && (
-              <span className="animatedEllipses">Thinking</span>
-            ) || (
-              <span className="offline">offline</span>
-            )}
-          </div>
         )}
         {player.get('isSelf') && (
           <div className="cardList">
@@ -128,7 +120,7 @@ export default React.createClass({
 
         {player.get('isSelf') && this.props.phase === 'sell' && player.get('sellCards').size > 0 && (
           <div className="cardList">
-            <CardTable phase="sell" size="small" visibleCards={player.get('sellCards')} visibleCardsGone={0} />
+            <CardTable phase="sell" size="small" visibleCards={player.get('sellCards')} visibleCardsGone={0} roundNum={this.props.roundNum} />
           </div>
         )}
         

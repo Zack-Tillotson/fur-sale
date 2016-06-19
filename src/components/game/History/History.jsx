@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import InlineCss from "react-inline-css";
 
 import styles from './styles';
@@ -72,12 +73,11 @@ const History = React.createClass({
     }
   },
 
-  getHistoryItemDetail() {
-    const historyItem = this.state.hoveredItem;
+  getHistoryItemDetail(historyItem = this.state.hoveredItem, key = 'historyItem', classNames = '') {
     switch(historyItem.get('action')) {
       case 'buyPhaseStarts':
         return (
-          <div className="historyItemDetail buyStart">
+          <div className="historyItemDetail buyStart" key={key}>
             Buy Phase Starts!
           </div>
         );
@@ -90,7 +90,7 @@ const History = React.createClass({
       case 'bid':
         const isSelf = historyItem.get('player').get('isSelf');
         return (
-          <div className="historyItemDetail bidAction">
+          <div className="historyItemDetail bidAction" key={key}>
             {isSelf && `You bid`}
             {!isSelf && `${historyItem.get('player').get('name')} bids`}
             &nbsp;
@@ -99,7 +99,7 @@ const History = React.createClass({
         );
       case 'pass':
         return (
-           <div className="historyItemDetail passAction">
+           <div className="historyItemDetail passAction" key={key}>
             <div className="playerPasses">
               {historyItem.get('player').get('name')} passes!
             </div>
@@ -118,7 +118,7 @@ const History = React.createClass({
         );
       case 'sell':
         return (
-           <div className="historyItemDetail sellAction">
+           <div className={`historyItemDetail sellAction ${classNames}`} key={key}>
             <div className="sellTitle">
               Everyone has chosen their card!
             </div>
@@ -136,28 +136,46 @@ const History = React.createClass({
         );
       case 'gameover':
         return (
-           <div className="historyItemDetail gameover">
+           <div className="historyItemDetail gameover" key={key}>
              Game Over!
            </div>
         );
       default:
         return (
-           <div className="historyItemDetail">
+           <div className="historyItemDetail" key={key}>
              ?
            </div>
         );
     }
   },
 
+  getSelfActiveItem() {
+    return (
+      <div className="historyItem selfActive">
+         Your Turn!
+       </div>
+    );
+  },
+
   render() {
     return (
       <InlineCss stylesheet={styles} componentName="component" className="history">
         <div className="historyItems">
+          {this.props.isYourTurn && this.getSelfActiveItem()}
           {this.props.history.reverse().take(10).map(this.getHistoryItem)}
         </div>
         {this.state.hoveredItem && this.getHistoryItemDetail()}
+        <div className="reviewItems">
+          <ReactCSSTransitionGroup transitionName="review" transitionAppear={true} transitionAppearTimeout={5000} transitionEnterTimeout={5000} transitionLeaveTimeout={5000}>
+            {this.props.history.reverse().take(1).map(historyItem => {
+              const comp = this.getHistoryItemDetail(historyItem, `key${this.props.history.size}`, 'autoRound');
+              return comp;
+            })}
+          </ReactCSSTransitionGroup>
+        </div>
       </InlineCss>
     );
+
   }
 });
 

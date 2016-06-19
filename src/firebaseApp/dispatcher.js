@@ -6,9 +6,9 @@ const persona = ['default'];
 
 export default function(dispatch, props) {
 
-	return {
+  return {
 
-		createGame(isPublic) {
+    createGame(isPublic) {
       return dispatch(apiActions.createGame(isPublic));
     },
 
@@ -68,5 +68,9 @@ export default function(dispatch, props) {
       dispatch(apiActions.endSyncGameData(id));
     },
 
-	};
+    toggleHelpScreen(shouldShow) {
+      dispatch(actions.toggleHelp(shouldShow));
+    },
+
+  };
 }
